@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Operator Work Dashboard</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="simple-user-page worker-page">
+  <main class="simple-user-wrap">
+    <section class="simple-card" id="workPanel">
+      <div class="simple-head">
+        <div class="quote-icon">“</div>
+        <div><h1>Current Text Suggestion</h1><p class="small" id="operatorLabel">Operator</p></div>
+        <span class="pill ready-dot" id="readyPill">Ready</span>
+      </div>
+
+      <textarea id="txt" class="simple-textarea" readonly></textarea>
+
+      <div class="simple-link-box">
+        <div class="link-icon">🔗</div>
+        <div><b>Current Link</b><a id="openTextLink" href="#" target="_blank" rel="noopener">Loading...</a><small id="sourceLabel"></small></div>
+      </div>
+
+      <label class="field-label">Submitted Link <span>(optional)</span></label>
+      <input id="submittedLink" class="input submitted-input" placeholder="Paste submitted/proof link here if available">
+
+      <div class="simple-actions">
+        <button class="btn copy" id="copy">▣ Copy Text</button>
+        <a class="btn blue" id="open" href="#" target="_blank" rel="noopener">Open Link ↗</a>
+        <button class="btn ghost" id="next">Skip / Next ⏭</button>
+        <button class="btn green" id="done">Mark Done + Load Next ✓</button>
+      </div>
+
+      <a class="btn ghost full analyticsShortcut" id="analyticsLink" href="#">View My Analytics ↗</a>
+      <div class="simple-refresh-note">↻ <span id="updatedLabel">Loading...</span></div>
+      <div class="current hidden-current" id="linkLabel"></div>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

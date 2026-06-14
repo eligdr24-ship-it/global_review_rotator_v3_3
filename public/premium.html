@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Operator Analytics</title><link rel="stylesheet" href="/styles.css"></head>
+<body>
+  <div class="app-shell premium-shell analytics-only-shell">
+    <aside class="sidebar slim-operator-sidebar">
+      <a class="logoOnly" id="homeNav" href="#"><span></span><i></i><b></b></a>
+      <div class="side-section">My Pages</div>
+      <a class="side-link active" id="analyticsNav" href="#"><span>◌</span>My Analytics</a>
+      <a class="side-link" id="workNav" href="#"><span>✦</span>Back to Work</a>
+      <div class="side-spacer"></div>
+      <button class="side-user" id="theme"><span>OP</span><em>Dark / Light</em></button>
+    </aside>
+    <main class="page premium-page">
+      <header class="page-top">
+        <button class="mobile-menu">☰</button>
+        <div><h1><span id="userNameTitle">Operator</span> Analytics</h1><p class="sub">Your personal statistics from the shared link + text pool.</p></div>
+        <div class="top-tools"><button class="btn ghost smallBtn" id="theme2">Dark / Light</button><a class="admin-link" id="topWorkLink" href="#">Back to Work</a></div>
+      </header>
+
+      <div class="panel login-panel" id="loginPanel">
+        <h3>Operator Password</h3>
+        <input class="input" id="operatorPassword" type="password" placeholder="Enter your operator password">
+        <button class="btn blue full" id="loginBtn">Login</button>
+        <p class="small">This page only shows your own operator analytics.</p>
+      </div>
+
+      <div class="hidden" id="analyticsPanel">
+        <section class="dashboard-grid user-grid premium-stats" id="statistics">
+          <div class="panel progress-panel"><h3>Overall Progress</h3><div class="progress-layout"><div class="ring" id="overallRing" style="--p:0"><strong id="overallPct">0%</strong><span>Overall</span></div><div class="bars"><label>Links <b id="linkProgressText">—</b></label><div class="bar"><span id="linkBar"></span></div><label>Texts <b id="textProgressText">—</b></label><div class="bar bluebar"><span id="textBar"></span></div><p class="small positive" id="updatedLabel">● Loading...</p></div></div></div>
+          <div class="panel today-panel"><h3>Today's Progress</h3><div class="mini-ring" id="todayRing" style="--p:0"><strong id="doneToday">—</strong><span>Done Today</span></div><p class="chip greenChip" id="trendChip">Personal counter</p></div>
+          <div class="stats-quad panel compact-stats"><div class="mini-stat"><span>🔗</span><div><b id="totalLinks">—</b><em>Total Links</em></div></div><div class="mini-stat"><span>↗</span><div><b id="linksRemaining">—</b><em>Links Remaining</em></div></div><div class="mini-stat"><span>💬</span><div><b id="totalTexts">—</b><em>Total Texts</em></div></div><div class="mini-stat"><span>▣</span><div><b id="textsRemaining">—</b><em>Texts Remaining</em></div></div></div>
+        </section>
+        <section class="two-col large-left" id="activity">
+          <div class="panel"><div class="card-head"><h3>Recent Activity</h3><a id="workShortcut" href="#">Open Work Dashboard</a></div><div id="activityList" class="activity-list"></div></div>
+          <div class="panel"><h3>1-Year Personal Progress</h3><svg id="dailyChart" class="line-chart" viewBox="0 0 700 260" preserveAspectRatio="none"></svg></div>
+        </section>
+        <section class="panel" id="history"><div class="card-head"><h3>My Completed History</h3><span id="resultCount" class="small">—</span></div><div class="table-wrap"><table class="table"><thead><tr><th>Time</th><th>Day</th><th>Business Tab</th><th>Original Link</th><th>Submitted Link</th><th>Text</th></tr></thead><tbody id="historyRows"><tr><td colspan="6">No submissions yet.</td></tr></tbody></table></div></section>
+      </div>
+    </main>
+  </div>
+  <script src="/premium.js"></script>
+</body></html>

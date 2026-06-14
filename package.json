@@ -1,0 +1,12 @@
+{
+  "name": "global-review-rotator-2-1",
+  "version": "2.1.0",
+  "description": "Shared link and text rotator with admin Excel upload.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "ADMIN_PASSWORD=admin123 PORT=3000 node server.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {}
+}

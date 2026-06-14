@@ -1,0 +1,11 @@
+v3.3 Production Safe
+- Work dashboards remain open without password.
+- Analytics and Admin remain password protected.
+- Excel uploads preserve completed history.
+- Added data versioning and upload archive.
+- Completed history saves full link/text/source/operator values, not only indexes.
+- Added lifetime completed count.
+- Added Reset Active Pool button that keeps history.
+- Reset Everything is now clearly dangerous and wipes all history.
+- Admin export includes data version/version name.
+- Mobile responsive CSS kept and reinforced for admin tables/archive cards.
