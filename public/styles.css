@@ -302,3 +302,34 @@
 [data-theme="dark"] .archive-item{background:rgba(255,255,255,.04)}
 .archive-item b{display:block;font-size:14px;margin-bottom:4px}.archive-item p{margin:0;color:var(--muted);font-size:12px;font-weight:700}
 @media(max-width:760px){.archive-item{padding:10px;border-radius:13px}.archive-item b{font-size:13px}.archive-item p{font-size:11px}.drop-zone .input{width:100%;margin-bottom:8px}.button-row.compact{grid-template-columns:1fr!important}.table-wrap{overflow-x:auto!important}.table{min-width:880px}}
+
+/* v3.4 date search + navigation improvements */
+.date-search-panel{margin-bottom:18px;padding:16px 18px}
+.date-toolbar{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
+.date-toolbar label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:900;color:var(--muted);min-width:145px}
+.date-toolbar .input{padding:10px 12px;min-height:42px}
+.date-toolbar .btn{min-height:42px;white-space:nowrap}
+.mobile-back{margin-bottom:10px;width:fit-content;padding:10px 14px;font-size:13px}
+@media(max-width:760px){
+  .date-search-panel{padding:12px;margin:8px 0 14px;border-radius:18px}
+  .date-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .date-toolbar label{min-width:0;font-size:11px}
+  .date-toolbar .btn{padding:10px 8px;font-size:12px;border-radius:12px;min-height:38px}
+  .date-toolbar #applyDateSearch{grid-column:1/-1}
+  .top-tools{gap:7px;flex-wrap:wrap;justify-content:flex-end}
+  .top-tools .smallBtn,.top-tools .admin-link{font-size:12px;padding:9px 11px}
+  .page-top{gap:10px;margin-bottom:14px}
+  .page-top h1{font-size:20px}
+  .page-top .sub{font-size:12px}
+}
+@media(max-width:420px){
+  .date-toolbar{grid-template-columns:1fr}
+}
+
+/* Admin completed-history notes */
+.note-input{width:220px;min-height:74px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.65);color:var(--text);padding:10px;font:600 12px/1.35 -apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;resize:vertical;outline:none}
+[data-theme="dark"] .note-input{background:rgba(255,255,255,.06)}
+.note-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+.note-input.saving{opacity:.55}
+.note-input.saved{border-color:var(--green);box-shadow:0 0 0 3px rgba(34,197,94,.14)}
+@media(max-width:760px){.note-input{width:180px;min-height:64px;font-size:12px;padding:8px}}

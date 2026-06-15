@@ -52,3 +52,14 @@ Excel format:
 - Every other sheet = link tab/business tab, links in column A
 
 The system keeps distribution fair across link tabs by selecting tabs with the lowest completion count first, then randomly choosing a link inside that tab.
+
+## v3.4 Date Search Update
+
+Admin and Operator Analytics dashboards now start with the current week, Sunday to Saturday. Use the calendar fields or quick filters to search any date range. Exports follow the selected date range.
+
+Back buttons are included on the main dashboards for easier navigation on mobile and desktop.
+
+
+## Admin Notes in Completed History
+
+The Admin dashboard now includes an Admin Notes column in the Completed History table. Notes are saved per history row, persist across uploads/redeploys when using the Render Persistent Disk, and are included in Excel exports.

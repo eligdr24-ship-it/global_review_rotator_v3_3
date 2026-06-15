@@ -15,8 +15,10 @@
       <header class="page-top">
         <button class="mobile-menu">☰</button>
         <div><h1><span id="userNameTitle">Operator</span> Analytics</h1><p class="sub">Your personal statistics from the shared link + text pool.</p></div>
-        <div class="top-tools"><button class="btn ghost smallBtn" id="theme2">Dark / Light</button><a class="admin-link" id="topWorkLink" href="#">Back to Work</a></div>
+        <div class="top-tools"><button class="btn ghost smallBtn" id="backBtn">← Back</button><button class="btn ghost smallBtn" id="theme2">Dark / Light</button><a class="admin-link" id="topWorkLink" href="#">Back to Work</a></div>
       </header>
+
+      <section class="panel date-search-panel"><div class="card-head"><h3>📅 Date Search</h3><span class="small" id="dateRangeLabel">This week</span></div><div class="date-toolbar"><label>From <input class="input" id="fromDate" type="date"></label><label>To <input class="input" id="toDate" type="date"></label><button class="btn blue smallBtn" id="applyDateSearch">Apply Search</button><button class="btn ghost smallBtn" data-range="week">This Week</button><button class="btn ghost smallBtn" data-range="today">Today</button><button class="btn ghost smallBtn" data-range="7">Last 7 Days</button><button class="btn ghost smallBtn" data-range="30">Last 30 Days</button><button class="btn ghost smallBtn" data-range="90">Last 90 Days</button><button class="btn ghost smallBtn" data-range="365">Last 1 Year</button></div></section>
 
       <div class="panel login-panel" id="loginPanel">
         <h3>Operator Password</h3>
@@ -33,7 +35,7 @@
         </section>
         <section class="two-col large-left" id="activity">
           <div class="panel"><div class="card-head"><h3>Recent Activity</h3><a id="workShortcut" href="#">Open Work Dashboard</a></div><div id="activityList" class="activity-list"></div></div>
-          <div class="panel"><h3>1-Year Personal Progress</h3><svg id="dailyChart" class="line-chart" viewBox="0 0 700 260" preserveAspectRatio="none"></svg></div>
+          <div class="panel"><h3>Selected Date Personal Progress</h3><svg id="dailyChart" class="line-chart" viewBox="0 0 700 260" preserveAspectRatio="none"></svg></div>
         </section>
         <section class="panel" id="history"><div class="card-head"><h3>My Completed History</h3><span id="resultCount" class="small">—</span></div><div class="table-wrap"><table class="table"><thead><tr><th>Time</th><th>Day</th><th>Business Tab</th><th>Original Link</th><th>Submitted Link</th><th>Text</th></tr></thead><tbody id="historyRows"><tr><td colspan="6">No submissions yet.</td></tr></tbody></table></div></section>
       </div>

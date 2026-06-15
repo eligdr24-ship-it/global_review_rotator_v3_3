@@ -1,11 +1,21 @@
-v3.3 Production Safe
-- Work dashboards remain open without password.
-- Analytics and Admin remain password protected.
-- Excel uploads preserve completed history.
-- Added data versioning and upload archive.
-- Completed history saves full link/text/source/operator values, not only indexes.
-- Added lifetime completed count.
-- Added Reset Active Pool button that keeps history.
-- Reset Everything is now clearly dangerous and wipes all history.
-- Admin export includes data version/version name.
-- Mobile responsive CSS kept and reinforced for admin tables/archive cards.
+Global Review Rotator v3.4
+
+Added:
+- Full calendar date search on Admin and Operator Analytics dashboards.
+- Default dashboard range is current week, Sunday to Saturday.
+- Quick filters: This Week, Today, Last 7 Days, Last 30 Days, Last 90 Days, Last 1 Year.
+- Dashboard counters, charts, history, operator leaderboard, business-tab analytics and Excel export follow the selected date range.
+- Back buttons added to Admin, Worker, and Analytics pages.
+- Analytics opened from Admin can return back to Admin; normal analytics returns back to the operator work dashboard.
+
+Kept:
+- Worker dashboards remain open without password.
+- Analytics pages require operator password.
+- Admin dashboard requires admin password.
+- History is preserved after Excel uploads.
+- Multi-sheet fair distribution by link tab/business tab.
+
+v3.5 admin notes update:
+- Added Admin-only Notes column to Completed History.
+- Notes are saved per completed history row and persist in db.json.
+- Notes are included in Admin search/filter and Excel export.
