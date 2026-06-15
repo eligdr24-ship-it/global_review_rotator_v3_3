@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Operator Analytics</title><link rel="stylesheet" href="/styles.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Operator Analytics</title><link rel="stylesheet" href="/styles.css"><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head>
 <body>
   <div class="app-shell premium-shell analytics-only-shell">
     <aside class="sidebar slim-operator-sidebar">
@@ -26,7 +26,7 @@
       </div>
 
       <div class="hidden" id="analyticsPanel">
-        <section class="panel date-search-panel"><div class="card-head"><h3>📅 Date Search</h3><span class="small" id="dateRangeLabel">This week</span></div><div class="date-toolbar"><label>From <input class="input" id="fromDate" type="date"></label><label>To <input class="input" id="toDate" type="date"></label><button class="btn blue smallBtn" id="applyDateSearch">Apply Search</button><button class="btn ghost smallBtn" data-range="week">This Week</button><button class="btn ghost smallBtn" data-range="today">Today</button><button class="btn ghost smallBtn" data-range="7">Last 7 Days</button><button class="btn ghost smallBtn" data-range="30">Last 30 Days</button><button class="btn ghost smallBtn" data-range="90">Last 90 Days</button><button class="btn ghost smallBtn" data-range="365">Last 1 Year</button></div></section>
+        <section class="panel date-search-panel"><div class="card-head"><h3>📅 Date Search</h3><span class="small" id="dateRangeLabel">This week</span></div><div class="date-toolbar"><label>From <input class="input" id="fromDate" type="date"></label><label>To <input class="input" id="toDate" type="date"></label><button class="btn blue smallBtn" id="applyDateSearch">Apply Search</button><button class="btn copy smallBtn" id="exportOperatorBtn">Download Excel</button><button class="btn ghost smallBtn" data-range="week">This Week</button><button class="btn ghost smallBtn" data-range="today">Today</button><button class="btn ghost smallBtn" data-range="7">Last 7 Days</button><button class="btn ghost smallBtn" data-range="30">Last 30 Days</button><button class="btn ghost smallBtn" data-range="90">Last 90 Days</button><button class="btn ghost smallBtn" data-range="365">Last 1 Year</button></div></section>
         <section class="dashboard-grid user-grid premium-stats" id="statistics">
           <div class="panel progress-panel"><h3>Overall Progress</h3><div class="progress-layout"><div class="ring" id="overallRing" style="--p:0"><strong id="overallPct">0%</strong><span>Overall</span></div><div class="bars"><label>Links <b id="linkProgressText">—</b></label><div class="bar"><span id="linkBar"></span></div><label>Texts <b id="textProgressText">—</b></label><div class="bar bluebar"><span id="textBar"></span></div><p class="small positive" id="updatedLabel">● Loading...</p></div></div></div>
           <div class="panel today-panel"><h3>Today's Progress</h3><div class="mini-ring" id="todayRing" style="--p:0"><strong id="doneToday">—</strong><span>Done Today</span></div><p class="chip greenChip" id="trendChip">Personal counter</p></div>

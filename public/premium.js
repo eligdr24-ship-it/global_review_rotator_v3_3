@@ -15,5 +15,48 @@ function fill(s){const totalLinks=s.totalLinks||0,totalTexts=s.totalTexts||0,don
 function renderActivity(hist){const rows=(hist||[]).slice(0,5);$('activityList').innerHTML=rows.length?rows.map(h=>`<div class="activity-item"><div class="activity-icon">✓</div><div><b>Marked link #${Number(h.linkIdx)+1} as done</b><p>${esc(h.source||'Links')} • ${esc(h.link)}</p><p>${esc(h.text)}</p></div><div class="activity-time">${esc(localTime(h.at))}</div></div>`).join(''):'<p class="small">No activity in this date range.</p>'}
 function renderHistory(hist){$('historyRows').innerHTML=hist.length?hist.map(h=>`<tr><td>${esc(localTime(h.at))}</td><td>${esc(h.day)}</td><td>${esc(h.source||'Links')}</td><td class="break"><a href="${esc(h.link)}" target="_blank">${esc(h.link)}</a></td><td class="break">${h.submittedLink?`<a href="${esc(h.submittedLink)}" target="_blank">${esc(h.submittedLink)}</a>`:'—'}</td><td>${esc(h.text)}</td></tr>`).join(''):'<tr><td colspan="6">No submissions for this date range.</td></tr>';setText('resultCount',`Showing ${hist.length} result${hist.length===1?'':'s'}`)}
 function drawChart(daily){const svg=$('dailyChart'),rows=(daily||[]).slice(),W=700,H=260,P=24;if(!rows.length){svg.innerHTML='<text x="20" y="40" fill="currentColor">No data yet</text>';return}const max=Math.max(1,...rows.map(d=>d.doneCount));const pts=rows.map((d,i)=>{const x=P+(rows.length===1?0:i*(W-P*2)/(rows.length-1));const y=H-P-(d.doneCount/max)*(H-P*2);return{x,y,d}});const line=pts.map((p,i)=>`${i?'L':'M'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');const area=`${line} L${pts[pts.length-1].x},${H-P} L${pts[0].x},${H-P} Z`;svg.innerHTML=`<defs><linearGradient id="gradLine" x1="0" x2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset="1" stop-color="#007aff"/></linearGradient><linearGradient id="gradArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7c3aed" stop-opacity=".2"/><stop offset="1" stop-color="#7c3aed" stop-opacity="0"/></linearGradient></defs><path class="chart-area" d="${area}"/><path class="chart-line" d="${line}"/>`}
+
+function exportOperatorXlsx(){
+  if(!LAST){ alert('No report data loaded yet.'); return; }
+  if(typeof XLSX === 'undefined'){ alert('Excel export library is still loading. Please try again in a few seconds.'); return; }
+  const from = $('fromDate')?.value || '';
+  const to = $('toDate')?.value || '';
+  const history = LAST.report?.history || [];
+  const daily = LAST.report?.daily || [];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{
+    Operator: USER.name,
+    OperatorId: USER_ID,
+    DateFrom: from,
+    DateTo: to,
+    DoneInRange: LAST.status?.rangeDone ?? history.length,
+    TotalLinks: LAST.status?.totalLinks,
+    LinksRemaining: LAST.status?.linksRemaining,
+    TotalTexts: LAST.status?.totalTexts,
+    TextsRemaining: LAST.status?.textsRemaining,
+    UpdatedAt: LAST.status?.updatedAt
+  }]), 'Summary');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(daily.map(d => ({
+    Date: d.day,
+    Completed: d.doneCount
+  }))), 'Daily Counter');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(history.map(h => ({
+    Date: h.day,
+    Time: localTime(h.at),
+    Operator: h.userName || USER.name,
+    OperatorId: h.userId || USER_ID,
+    BusinessTab: h.source || 'Links',
+    OriginalLink: h.link || '',
+    SubmittedLink: h.submittedLink || '',
+    Text: h.text || '',
+    Status: h.status || 'done',
+    DataVersion: h.dataVersion || '',
+    VersionName: h.versionName || '',
+    AdminNote: h.adminNote || ''
+  }))), 'Completed History');
+  const safeName = USER_ID.replace(/[^a-z0-9_-]/gi,'');
+  XLSX.writeFile(wb, `operator-${safeName}-analytics-${from || 'start'}-to-${to || 'end'}.xlsx`);
+}
+
 async function loadReport(){const j=await api(`/api/report?${dateParams()}&user=${USER_ID}`);LAST=j;fill(j.status);renderActivity(j.report.history);renderHistory(j.report.history);drawChart(j.report.daily)}
-$('loginBtn').onclick=login;$('operatorPassword').addEventListener('keydown',e=>{if(e.key==='Enter')login()});initDates();if(pass()){showAnalytics();loadReport().catch(e=>{localStorage.removeItem(PASS_KEY);$('analyticsPanel').classList.add('hidden');$('loginPanel').classList.remove('hidden');alert(e.message)})}
+$('loginBtn').onclick=login;const exportBtn=$('exportOperatorBtn');if(exportBtn)exportBtn.onclick=exportOperatorXlsx;$('operatorPassword').addEventListener('keydown',e=>{if(e.key==='Enter')login()});initDates();if(pass()){showAnalytics();loadReport().catch(e=>{localStorage.removeItem(PASS_KEY);$('analyticsPanel').classList.add('hidden');$('loginPanel').classList.remove('hidden');alert(e.message)})}

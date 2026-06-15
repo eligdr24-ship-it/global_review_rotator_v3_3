@@ -24,3 +24,5 @@ V3.5.1 update:
 - Date Search on operator analytics is now hidden until after operator password login.
 - Admin Date Search remains inside the password-protected dashboard panel.
 - Mobile responsive layout retained for admin, analytics, and worker pages.
+
+- Added operator analytics Excel export based on selected date range.
