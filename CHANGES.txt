@@ -19,3 +19,8 @@ v3.5 admin notes update:
 - Added Admin-only Notes column to Completed History.
 - Notes are saved per completed history row and persist in db.json.
 - Notes are included in Admin search/filter and Excel export.
+
+V3.5.1 update:
+- Date Search on operator analytics is now hidden until after operator password login.
+- Admin Date Search remains inside the password-protected dashboard panel.
+- Mobile responsive layout retained for admin, analytics, and worker pages.
