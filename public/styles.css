@@ -432,3 +432,34 @@
 .history-table .col-resizer{right:0!important;background:transparent!important;}
 .history-table .col-resizer:after{background:#9b6cff!important;opacity:.85!important;}
 @media(max-width:760px){.history-table th,.history-table td{font-size:11px!important;padding:5px 6px!important}.admin-history-wrap{max-height:68vh!important}}
+
+
+/* v3.14 hard fix: Completed History columns must stay compact unless resized by header */
+#history .admin-history-wrap{width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:auto!important;}
+#history table.history-table{table-layout:fixed!important;border-collapse:collapse!important;width:1090px!important;min-width:1090px!important;max-width:1090px!important;}
+#history table.history-table col:nth-child(1){width:110px!important}
+#history table.history-table col:nth-child(2){width:80px!important}
+#history table.history-table col:nth-child(3){width:70px!important}
+#history table.history-table col:nth-child(4){width:175px!important}
+#history table.history-table col:nth-child(5){width:155px!important}
+#history table.history-table col:nth-child(6){width:220px!important}
+#history table.history-table col:nth-child(7){width:160px!important}
+#history table.history-table col:nth-child(8){width:120px!important}
+#history table.history-table th,
+#history table.history-table td{max-width:1px!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important;word-break:normal!important;}
+#history table.history-table th{position:sticky!important;top:0!important;z-index:3!important;background:var(--card2)!important;}
+#history table.history-table td a,
+#history table.history-table td .compact-cell,
+#history table.history-table td .compact-link,
+#history table.history-table td .locked-view,
+#history table.history-table td .history-lock-field,
+#history table.history-table td .history-edit,
+#history table.history-table td .note-input{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important;word-break:normal!important;}
+#history table.history-table td:nth-child(4) a.compact-link,
+#history table.history-table td:nth-child(5) a.compact-link{font-size:12px!important;}
+#history .table-resize-hint{display:block!important;line-height:1.5!important;}
+#resetHistoryColumns{padding:6px 10px!important;font-size:12px!important;border-radius:10px!important;}
+@media(max-width:760px){
+  #history table.history-table{width:980px!important;min-width:980px!important;max-width:980px!important;}
+  #history table.history-table th,#history table.history-table td{font-size:11px!important;padding:5px 6px!important;}
+}

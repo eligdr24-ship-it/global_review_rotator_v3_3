@@ -90,3 +90,8 @@ v3.12: Admin Completed History columns tightened. Link/text/note cells now defau
 - Long Original Link / Submitted Link values are clipped with ellipsis and no longer widen the table.
 - Resizing still works by dragging column edges in the header.
 - Double-click clipped cells to view full content.
+
+## v3.14 Completed History hard column fix
+- Forces compact fixed columns in Admin Completed History.
+- Uses a new saved-width key so old wide column settings do not carry over.
+- Adds Reset Column Sizes button in Admin history tip line.

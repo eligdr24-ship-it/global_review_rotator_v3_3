@@ -64,7 +64,7 @@ function submittedCell(h){const id=esc(h.id||''),val=esc(h.submittedLink||'');co
 function noteCell(h){const id=esc(h.id||''),val=esc(h.adminNote||''),editing=!(h.adminNote||'').trim();const view=compactText(h.adminNote||'', 'note');return `<div class="history-lock-field ${editing?'is-editing':'is-locked'}" data-field="note"><div class="locked-view">${view}</div><textarea class="note-input history-edit" data-history-id="${id}" placeholder="Add note...">${val}</textarea></div>`;}
 function actionCell(h){return `<div class="row-actions"><span class="save-status">${((h.submittedLink||'').trim()||(h.adminNote||'').trim())?'Saved':'Editing'}</span><button class="btn ghost tinyBtn row-edit-btn" type="button">Edit</button></div>`;}
 
-function renderHistory(history){$('historyRows').innerHTML=history.length?history.map(h=>`<tr data-history-id="${esc(h.id||'')}"><td class="nowrap">${esc(dateTimeCell(h.at,h.day))}</td><td>${esc(h.userName||h.userId||'User')}</td><td class="business-tab-cell">${compactText(h.source||'Links','text')}</td><td class="break">${compactLink(h.link)}</td><td class="break">${submittedCell(h)}</td><td>${compactText(h.text,'text')}</td><td>${noteCell(h)}</td><td>${actionCell(h)}</td></tr>`).join(''):'<tr><td colspan="8">No submissions found for this date range.</td></tr>';setText('resultCount',`Showing ${history.length} result${history.length===1?'':'s'}`);bindHistoryInputs();bindPreviewCells()}
+function renderHistory(history){$('historyRows').innerHTML=history.length?history.map(h=>`<tr data-history-id="${esc(h.id||'')}"><td class="nowrap">${esc(dateTimeCell(h.at,h.day))}</td><td>${esc(h.userName||h.userId||'User')}</td><td class="business-tab-cell">${compactText(h.source||'Links','text')}</td><td class="break">${compactLink(h.link)}</td><td class="break">${submittedCell(h)}</td><td>${compactText(h.text,'text')}</td><td>${noteCell(h)}</td><td>${actionCell(h)}</td></tr>`).join(''):'<tr><td colspan="8">No submissions found for this date range.</td></tr>';setText('resultCount',`Showing ${history.length} result${history.length===1?'':'s'}`);bindHistoryInputs();bindPreviewCells();setTimeout(()=>window.initAdminHistoryColumnResize&&window.initAdminHistoryColumnResize(),0)}
 
 function bindHistoryInputs(){document.querySelectorAll('.history-edit').forEach(el=>{el.oninput=()=>{el.classList.add('dirty');markUnsaved(true);const row=el.closest('tr');if(row){const st=row.querySelector('.save-status');if(st)st.textContent='Editing';}}});document.querySelectorAll('.row-edit-btn').forEach(btn=>{btn.onclick=()=>{const row=btn.closest('tr');if(!row)return;row.querySelectorAll('.history-lock-field').forEach(f=>f.classList.remove('is-locked'));row.querySelectorAll('.history-lock-field').forEach(f=>f.classList.add('is-editing'));const st=row.querySelector('.save-status');if(st)st.textContent='Editing';markUnsaved(true);}})}
 async function saveHistoryChanges(){const byId={};document.querySelectorAll('.submitted-edit,.note-input').forEach(el=>{const id=el.dataset.historyId;if(!id)return;byId[id] ||= {id}; if(el.classList.contains('submitted-edit')) byId[id].submittedLink=el.value; if(el.classList.contains('note-input')) byId[id].adminNote=el.value;});const updates=Object.values(byId);if(!updates.length)return alert('No rows to save.');const btn=$('saveHistoryBtn');try{if(btn){btn.disabled=true;btn.textContent='Saving...'}await api('/api/history/update',{method:'POST',body:JSON.stringify({updates})});if(LAST?.report?.history){for(const u of updates){const row=LAST.report.history.find(h=>String(h.id)===String(u.id));if(row){if(typeof u.submittedLink!=='undefined')row.submittedLink=u.submittedLink;if(typeof u.adminNote!=='undefined')row.adminNote=u.adminNote;}}}markUnsaved(false);applyFilter();if(btn)btn.textContent='Saved ✅';setTimeout(()=>{if(btn)btn.textContent='Save All Changes'},1000);}catch(e){alert(e.message)}finally{if(btn)btn.disabled=false}}
@@ -82,10 +82,10 @@ initDates();
 
 /* v3.9 Excel-style resizable columns for Admin Completed History */
 (function(){
-  const STORAGE_KEY = 'grr_admin_history_column_widths_v313';
+  const STORAGE_KEY = 'grr_admin_history_column_widths_v314';
   // v3.12: tighter default column widths so links/text stay as one-line previews.
   // Users can still drag column edges in the header to make any column wider.
-  const DEFAULT_WIDTHS = [125,90,70,135,145,220,150,110];
+  const DEFAULT_WIDTHS = [110,80,70,175,155,220,160,120];
   function getWidths(){
     try{const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return DEFAULT_WIDTHS.map((d,i)=>Number(v[i])||d);}catch{return DEFAULT_WIDTHS.slice();}
   }
@@ -104,6 +104,12 @@ initDates();
     const table=document.getElementById('historyTable'); if(!table)return;
     const ths=[...table.querySelectorAll('thead th')]; if(!ths.length)return;
     const widths=getWidths(); applyWidths(table,widths);
+    const hint=document.querySelector('#history .table-resize-hint');
+    if(hint && !document.getElementById('resetHistoryColumns')){
+      const b=document.createElement('button'); b.id='resetHistoryColumns'; b.type='button'; b.className='btn ghost tinyBtn'; b.textContent='Reset Column Sizes';
+      b.style.marginLeft='10px'; b.onclick=()=>{localStorage.removeItem(STORAGE_KEY); applyWidths(table, DEFAULT_WIDTHS.slice()); location.reload();};
+      hint.appendChild(b);
+    }
     ths.forEach((th,i)=>{
       th.classList.add('resizable-th');
       if(th.querySelector('.col-resizer'))return;
