@@ -40,3 +40,44 @@ $('searchBox').oninput=applyFilter;$('userFilter').onchange=applyFilter;document
 $('uploadBtn').onclick=async()=>{try{const f=$('file').files[0];if(!f)return alert('Choose an Excel file first');const data=await readWorkbook(f);const totalLinks=Object.values(data.linkTabs).reduce((a,b)=>a+b.length,0);if(!confirm(`Replace current data with ${totalLinks} links across ${Object.keys(data.linkTabs).length} tabs and ${data.texts.length} texts?`))return;data.versionName=($('versionNameInput')?.value||f.name||'').trim();data.fileName=f.name;const r=await api('/api/admin/upload',{method:'POST',body:JSON.stringify(data)});renderAll(r.status);alert('Uploaded ✅\nHistory was preserved.')}catch(e){alert(e.message)}};
 $('undo').onclick=async()=>{if(confirm('Undo last completed item?'))renderAll((await api('/api/admin/undo',{method:'POST',body:'{}'})).status)};const ra=$('resetActive');if(ra)ra.onclick=async()=>{if(confirm('Reset only the active pool? History will stay saved.'))renderAll((await api('/api/admin/reset-active',{method:'POST',body:'{}'})).status)};$('resetAll').onclick=async()=>{if(confirm('DANGER: Reset EVERYTHING including history and upload archive?'))renderAll((await api('/api/admin/reset-all',{method:'POST',body:'{}'})).status)};$('exportBtn').onclick=exportXlsx;const shb=$('saveHistoryBtn');if(shb)shb.onclick=saveHistoryChanges;
 initDates();
+
+/* v3.9 Excel-style resizable columns for Admin Completed History */
+(function(){
+  const STORAGE_KEY = 'grr_admin_history_column_widths_v39';
+  const DEFAULT_WIDTHS = [88,104,132,150,260,260,360,96,260,150];
+  function getWidths(){
+    try{const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return DEFAULT_WIDTHS.map((d,i)=>Number(v[i])||d);}catch{return DEFAULT_WIDTHS.slice();}
+  }
+  function saveWidths(widths){localStorage.setItem(STORAGE_KEY, JSON.stringify(widths));}
+  function applyWidths(table,widths){
+    if(!table)return;
+    let cg=table.querySelector('colgroup');
+    if(!cg){cg=document.createElement('colgroup'); for(let i=0;i<widths.length;i++)cg.appendChild(document.createElement('col')); table.insertBefore(cg, table.firstChild);}
+    [...cg.children].forEach((col,i)=>{col.style.width=(widths[i]||DEFAULT_WIDTHS[i]||120)+'px';});
+  }
+  window.initAdminHistoryColumnResize=function(){
+    const table=document.getElementById('historyTable'); if(!table)return;
+    const ths=[...table.querySelectorAll('thead th')]; if(!ths.length)return;
+    const widths=getWidths(); applyWidths(table,widths);
+    ths.forEach((th,i)=>{
+      th.classList.add('resizable-th');
+      if(th.querySelector('.col-resizer'))return;
+      const handle=document.createElement('span'); handle.className='col-resizer'; handle.title='Drag to resize column'; th.appendChild(handle);
+      let startX=0,startW=0;
+      const move=e=>{
+        const x=e.touches?e.touches[0].clientX:e.clientX;
+        const next=Math.max(60,startW+(x-startX)); widths[i]=next; applyWidths(table,widths);
+      };
+      const up=()=>{document.body.classList.remove('resize-active');handle.classList.remove('is-dragging');saveWidths(widths);document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);};
+      const down=e=>{e.preventDefault();startX=e.touches?e.touches[0].clientX:e.clientX;startW=widths[i]||th.offsetWidth;document.body.classList.add('resize-active');handle.classList.add('is-dragging');document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);document.addEventListener('touchmove',move,{passive:false});document.addEventListener('touchend',up);};
+      handle.addEventListener('mousedown',down); handle.addEventListener('touchstart',down,{passive:false});
+    });
+  };
+  const oldRenderHistory = window.renderHistory || (typeof renderHistory === 'function' ? renderHistory : null);
+  if(oldRenderHistory){
+    window.renderHistory = function(history){ const r=oldRenderHistory(history); setTimeout(()=>window.initAdminHistoryColumnResize&&window.initAdminHistoryColumnResize(),0); return r; };
+    try{ renderHistory = window.renderHistory; }catch{}
+  }
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>window.initAdminHistoryColumnResize&&window.initAdminHistoryColumnResize(),0));
+  setTimeout(()=>window.initAdminHistoryColumnResize&&window.initAdminHistoryColumnResize(),200);
+})();

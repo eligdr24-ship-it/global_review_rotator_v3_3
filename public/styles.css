@@ -341,3 +341,25 @@
 /* v3.8 locked edit/save history fields */
 .history-lock-field{min-width:210px;display:block}.history-lock-field .history-edit{width:100%;min-width:190px}.history-lock-field.is-locked .history-edit{display:none}.history-lock-field.is-editing .locked-view{display:none}.saved-link{color:var(--blue);font-weight:900;text-decoration:none;word-break:break-all}.saved-link:hover{text-decoration:underline}.saved-note{display:block;white-space:pre-wrap;color:var(--text);font-weight:700}.muted-inline{color:var(--muted);font-size:13px;font-weight:700}.row-actions{display:flex;align-items:center;gap:8px;min-width:120px}.save-status{font-size:12px;font-weight:900;border-radius:999px;padding:6px 9px;background:rgba(34,197,94,.12);color:#16a34a;white-space:nowrap}.tinyBtn{padding:7px 10px!important;border-radius:11px!important;font-size:12px!important;box-shadow:none!important}.history-edit.dirty{outline:2px solid rgba(249,115,22,.45)}.history-edit.saved{outline:2px solid rgba(34,197,94,.45)}
 @media(max-width:760px){.row-actions{min-width:100px;gap:6px}.save-status{font-size:11px;padding:5px 7px}.tinyBtn{font-size:11px!important;padding:6px 8px!important}.history-lock-field{min-width:180px}.history-lock-field .history-edit{min-width:170px}.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}.table{min-width:920px}}
+
+/* v3.9 Admin Completed History table improvements */
+#history{overflow:hidden}
+#history .card-head{align-items:flex-start;gap:10px;flex-wrap:wrap}
+.history-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.table-resize-hint{font-size:12px;color:var(--muted);margin:10px 0 6px;font-weight:700}
+.admin-history-wrap{max-height:68vh;overflow:auto;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+[data-theme="dark"] .admin-history-wrap{background:rgba(255,255,255,.035)}
+.history-table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}
+.history-table th,.history-table td{padding:9px 10px;vertical-align:top;border-bottom:1px solid var(--line);font-size:12.5px;line-height:1.35;overflow:hidden;text-overflow:ellipsis}
+.history-table thead th{position:sticky;top:0;z-index:5;background:rgba(248,250,252,.96);backdrop-filter:blur(18px);font-size:12px;letter-spacing:.01em;white-space:nowrap;color:var(--muted);font-weight:950;border-bottom:1px solid var(--line2)}
+[data-theme="dark"] .history-table thead th{background:rgba(18,24,38,.96)}
+.history-table th.resizable-th{position:sticky;top:0;padding-right:18px;user-select:none}
+.history-table .col-resizer{position:absolute;right:0;top:0;width:10px;height:100%;cursor:col-resize;touch-action:none;z-index:10}
+.history-table .col-resizer:after{content:"";position:absolute;right:4px;top:25%;width:2px;height:50%;border-radius:99px;background:rgba(124,58,237,.28);transition:.2s}
+.history-table .col-resizer:hover:after,.history-table .col-resizer.is-dragging:after{background:var(--primary);height:74%;top:13%}
+.history-table tr:hover td{background:rgba(124,58,237,.035)}
+.history-table td:nth-child(5),.history-table td:nth-child(6),.history-table td:nth-child(7),.history-table td:nth-child(9){white-space:normal;word-break:break-word}
+.history-table td:nth-child(5) a,.history-table td:nth-child(6) a{display:block;max-height:54px;overflow:hidden;color:var(--blue)}
+.history-table .history-lock-field{min-width:0}.history-table .history-edit,.history-table .note-input{width:100%;min-width:0;font-size:12px;padding:8px 9px;border-radius:10px}.history-table .note-input{min-height:52px;resize:vertical}.history-table .row-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.history-table .tinyBtn{padding:7px 9px;border-radius:10px;font-size:12px}.history-table .save-status{font-size:11px;padding:5px 8px;border-radius:999px;background:rgba(124,58,237,.10);color:var(--primary);font-weight:900;white-space:nowrap}
+.resize-active{cursor:col-resize!important;user-select:none!important}
+@media(max-width:760px){.admin-history-wrap{max-height:70vh;border-radius:14px;margin-left:-4px;margin-right:-4px}.history-table th,.history-table td{padding:8px 8px;font-size:11.5px}.history-table thead th{font-size:11px}.table-resize-hint{font-size:11px}.history-tools{justify-content:flex-start;width:100%}#history .filters{grid-template-columns:1fr!important}.history-table .history-edit,.history-table .note-input{font-size:11.5px;padding:7px}.history-table .note-input{min-height:44px}.history-table .tinyBtn{font-size:11px;padding:6px 8px}}

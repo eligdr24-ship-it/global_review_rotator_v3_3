@@ -74,3 +74,7 @@ The Admin dashboard now includes an Admin Notes column in the Completed History 
 ## v3.8 Locked History Edits
 
 Admin and operator history tables now support Edit + Save for submitted links. Admin notes use the same pattern. Saved submitted links become clickable, rows lock after saving, and the browser warns about unsaved changes.
+
+## v3.9 Admin Completed History Table
+
+The Admin Completed History table now has a compact layout, sticky header, better mobile scrolling, and Excel-style resizable columns. Drag the right edge of a column header to resize it. Column widths are saved in the browser on that device.

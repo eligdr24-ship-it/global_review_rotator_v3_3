@@ -36,3 +36,10 @@ v3.8: Locked edit/save history fields.
 - Saved submitted links become clickable hyperlinks.
 - Rows lock after Save All Changes and can be unlocked with Edit.
 - Added unsaved changes warning before closing/leaving page.
+
+v3.9 admin history table update:
+- Resized Admin Completed History table to fit the dashboard better.
+- Added sticky header and compact row spacing.
+- Added Excel-style resizable columns on the Admin Completed History table.
+- Column widths are saved in the browser on each device.
+- Improved mobile horizontal scroll and table readability.
