@@ -82,10 +82,10 @@ initDates();
 
 /* v3.9 Excel-style resizable columns for Admin Completed History */
 (function(){
-  const STORAGE_KEY = 'grr_admin_history_column_widths_v312';
+  const STORAGE_KEY = 'grr_admin_history_column_widths_v313';
   // v3.12: tighter default column widths so links/text stay as one-line previews.
   // Users can still drag column edges in the header to make any column wider.
-  const DEFAULT_WIDTHS = [135,105,85,155,165,245,180,130];
+  const DEFAULT_WIDTHS = [125,90,70,135,145,220,150,110];
   function getWidths(){
     try{const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return DEFAULT_WIDTHS.map((d,i)=>Number(v[i])||d);}catch{return DEFAULT_WIDTHS.slice();}
   }
@@ -95,6 +95,10 @@ initDates();
     let cg=table.querySelector('colgroup');
     if(!cg){cg=document.createElement('colgroup'); for(let i=0;i<widths.length;i++)cg.appendChild(document.createElement('col')); table.insertBefore(cg, table.firstChild);}
     [...cg.children].forEach((col,i)=>{col.style.width=(widths[i]||DEFAULT_WIDTHS[i]||120)+'px';});
+    const total = widths.reduce((a,b)=>a+(Number(b)||0),0);
+    table.style.width = total + 'px';
+    table.style.minWidth = total + 'px';
+    table.style.maxWidth = total + 'px';
   }
   window.initAdminHistoryColumnResize=function(){
     const table=document.getElementById('historyTable'); if(!table)return;

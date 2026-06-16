@@ -417,3 +417,18 @@
   .history-table{min-width:1000px!important;}
   .history-table th:nth-child(3),.history-table td:nth-child(3){width:72px!important;max-width:72px!important;}
 }
+
+
+/* v3.13 force compact Completed History columns */
+.admin-history-wrap{max-width:100%!important;overflow-x:auto!important;overflow-y:auto!important;}
+.history-table{table-layout:fixed!important;width:auto!important;min-width:auto!important;max-width:none!important;}
+.history-table th,.history-table td{overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important;}
+.history-table td > *{max-width:100%!important;}
+.history-table .compact-cell,.history-table .compact-link,.history-table .saved-link,.history-table .saved-note,.history-table .locked-view{display:block!important;width:100%!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;word-break:normal!important;}
+.history-table .business-tab-cell{width:100%!important;max-width:100%!important;}
+.history-table td:nth-child(4) a,.history-table td:nth-child(5) a{display:block!important;width:100%!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;word-break:normal!important;}
+.history-table .history-lock-field{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important;}
+.history-table .history-edit,.history-table .note-input{width:100%!important;max-width:100%!important;min-width:0!important;}
+.history-table .col-resizer{right:0!important;background:transparent!important;}
+.history-table .col-resizer:after{background:#9b6cff!important;opacity:.85!important;}
+@media(max-width:760px){.history-table th,.history-table td{font-size:11px!important;padding:5px 6px!important}.admin-history-wrap{max-height:68vh!important}}

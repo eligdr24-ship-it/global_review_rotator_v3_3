@@ -84,3 +84,9 @@ v3.10: Admin Completed History table cleanup: combined date/time into one column
 
 
 v3.12: Admin Completed History columns tightened. Link/text/note cells now default to narrow one-line previews, keep double-click full view, and column resize handles remain on the header. Browser column widths reset with a new v3.12 storage key.
+
+## v3.13 Compact History Column Fix
+- Completed History columns now use fixed compact defaults.
+- Long Original Link / Submitted Link values are clipped with ellipsis and no longer widen the table.
+- Resizing still works by dragging column edges in the header.
+- Double-click clipped cells to view full content.
