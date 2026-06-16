@@ -128,6 +128,32 @@ const server=http.createServer(async(req,res)=>{ try{ const url=new URL(req.url,
   if(url.pathname==='/api/operator/login'&&req.method==='POST'){ const p=await bodyJson(req); const uid=cleanUserId(p.userId); const ok=String(p.password||'')===String(operatorPassword(uid)); return send(res,ok?200:401,{ok,user:userInfo(uid)}); }
   if(url.pathname==='/api/next') { const user=url.searchParams.get('user')||''; const db=loadDb(); const item=nextItem(db); if(!item)return send(res,400,{error:'No links/texts loaded yet.'}); if(item.completed)return send(res,200,{completed:true,status:publicState(db,user)}); saveDb(db); return send(res,200,{...item,status:publicState(db,user)}); }
   if(url.pathname==='/api/done'&&req.method==='POST'){ const p=await bodyJson(req); const db=loadDb(); const linkIdx=Number(p.linkIdx), textIdx=Number(p.textIdx); if(!Number.isInteger(linkIdx)||!Number.isInteger(textIdx))return send(res,400,{error:'Missing link/text selection.'}); const uid=p.userId?cleanUserId(p.userId):'standard'; const u=userInfo(uid); const l=linkAt(db,linkIdx); if(!db.state.doneLinks.includes(linkIdx))db.state.doneLinks.push(linkIdx); if(!db.state.usedTexts.includes(textIdx))db.state.usedTexts.push(textIdx); const rec={id:crypto.randomUUID(),at:new Date().toISOString(),status:'done',userId:uid,userName:u.name,linkIdx,textIdx,source:l.source,link:l.url,text:db.data.texts[textIdx]||'',submittedLink:String(p.submittedLink||'').trim(),adminNote:'',dataVersion:db.meta?.dataVersion||1,versionName:db.meta?.versionName||'Initial Data'}; db.state.history.push(rec); saveDb(db); return send(res,200,{ok:true,status:publicState(db,uid)}); }
+
+  if(url.pathname==='/api/history/update'&&req.method==='POST'){
+    const p=await bodyJson(req);
+    const userId = p.userId ? cleanUserId(p.userId) : '';
+    const isAdmin = authOk(req);
+    const isOperator = userId && operatorAuthOk(req, userId);
+    if(!isAdmin && !isOperator) return send(res,401,{error:'Not authorized to update history.'});
+    const updates = Array.isArray(p.updates) ? p.updates : [];
+    if(!updates.length) return send(res,400,{error:'No updates provided.'});
+    const db=loadDb();
+    let updated=0;
+    for(const u of updates){
+      const id=String(u.id||'').trim();
+      if(!id) continue;
+      const row=(db.state.history||[]).find(h=>historyId(h)===id || String(h.id||'')===id);
+      if(!row) continue;
+      if(isOperator && cleanUserId(row.userId)!==userId) continue;
+      if(typeof u.submittedLink !== 'undefined') row.submittedLink = String(u.submittedLink||'').trim().slice(0,4000);
+      if(isAdmin && typeof u.adminNote !== 'undefined') row.adminNote = String(u.adminNote||'').slice(0,2000);
+      row.id = id;
+      updated++;
+    }
+    saveDb(db);
+    return send(res,200,{ok:true,updated});
+  }
+
   if(url.pathname==='/api/admin/login'&&req.method==='POST'){ const p=await bodyJson(req); return send(res,p.password===ADMIN_PASSWORD?200:401,{ok:p.password===ADMIN_PASSWORD}); }
   if(url.pathname.startsWith('/api/admin/')){ if(!authOk(req))return send(res,401,{error:'Wrong admin password.'}); const db=loadDb();
     if(url.pathname==='/api/admin/data'){ const c=url.searchParams.get('days')||365; const from=url.searchParams.get('from')||'', to=url.searchParams.get('to')||''; const user=url.searchParams.get('user')||''; const rep=report(db,c,user,from,to); const st=publicState(db); st.rangeDone=rep.totalDone; return send(res,200,{...st, meta:db.meta, uploadArchive:db.meta?.uploadArchive||[], report:rep, users:userBreakdown(db,c,from,to), sources:sourceStats(db), historicalSources:historicalSourceStats(db,c,from,to), operators:Object.values(OPERATORS).map(u=>({id:u.id,name:u.name,color:u.color})), links:db.data.links, texts:db.data.texts}); }

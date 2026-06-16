@@ -26,3 +26,5 @@ V3.5.1 update:
 - Mobile responsive layout retained for admin, analytics, and worker pages.
 
 - Added operator analytics Excel export based on selected date range.
+
+V3.7: Added editable Submitted Link fields in Admin and Operator Analytics history tables, plus Save All Changes batch save.

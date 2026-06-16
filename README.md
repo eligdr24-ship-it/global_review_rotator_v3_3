@@ -63,3 +63,9 @@ Back buttons are included on the main dashboards for easier navigation on mobile
 ## Admin Notes in Completed History
 
 The Admin dashboard now includes an Admin Notes column in the Completed History table. Notes are saved per history row, persist across uploads/redeploys when using the Render Persistent Disk, and are included in Excel exports.
+
+
+## v3.7 Editable Submitted Links
+- Admin Completed History: Submitted Link and Admin Notes are editable.
+- Operator Analytics: My Completed History Submitted Link is editable.
+- Use Save All Changes to save all row edits at once.
