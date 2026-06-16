@@ -46,3 +46,10 @@ v3.9 admin history table update:
 
 
 v3.10: Admin Completed History table cleanup: combined date/time into one column, removed Version column from the visible admin table, made Business Tab column smaller, and kept resizable columns.
+
+v3.11 compact history table:
+- Admin Completed History rows are compact, one-line previews.
+- Original Link, Submitted Link, Text, Notes, and Business Tab are truncated in one line.
+- Double-click any preview cell to open a full-content popup with Copy button.
+- Links remain clickable.
+- Resizable columns and sticky header are preserved.

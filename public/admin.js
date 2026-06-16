@@ -2,6 +2,44 @@ let PASS='',LAST=null,CURRENT_USER='';
 const $=id=>document.getElementById(id);
 async function api(p,opt={}){opt.headers={...(opt.headers||{}),'Content-Type':'application/json','x-admin-password':PASS};const r=await fetch(p,opt);const text=await r.text();let j;try{j=text?JSON.parse(text):{}}catch{throw new Error(`Backend returned ${r.status}: ${text.slice(0,120)}`)}if(!r.ok)throw new Error(j.error||'Request failed');return j}
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+function fullAttr(s){return esc(String(s||''));}
+function compactText(s, type='text'){
+  const val = String(s||'');
+  const safe = esc(val);
+  const emptyLabel = type==='link' ? 'No link' : type==='note' ? 'No note' : '—';
+  if(!val.trim()) return `<span class="muted-inline compact-cell">${emptyLabel}</span>`;
+  return `<span class="compact-cell preview-cell" title="${safe}" data-full="${safe}">${safe}</span>`;
+}
+function compactLink(url){
+  const val = String(url||'').trim();
+  if(!val) return '<span class="muted-inline compact-cell">No link</span>';
+  const safe = esc(val), href = esc(hrefFor(val));
+  return `<a class="compact-cell preview-cell compact-link" href="${href}" target="_blank" rel="noopener" title="${safe}" data-full="${safe}">${safe}</a>`;
+}
+function ensureFullViewModal(){
+  let m=document.getElementById('fullCellModal');
+  if(m) return m;
+  m=document.createElement('div');
+  m.id='fullCellModal';
+  m.className='full-cell-modal hidden';
+  m.innerHTML='<div class="full-cell-box"><div class="full-cell-head"><h3>Full Content</h3><button class="btn ghost tinyBtn" id="fullCellClose" type="button">Close</button></div><pre id="fullCellText"></pre><button class="btn copy smallBtn" id="fullCellCopy" type="button">Copy</button></div>';
+  document.body.appendChild(m);
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.add('hidden')});
+  document.getElementById('fullCellClose').onclick=()=>m.classList.add('hidden');
+  document.getElementById('fullCellCopy').onclick=async()=>{try{await navigator.clipboard.writeText(document.getElementById('fullCellText').textContent||'');document.getElementById('fullCellCopy').textContent='Copied ✅';setTimeout(()=>document.getElementById('fullCellCopy').textContent='Copy',900)}catch{alert('Copy failed. Select and copy manually.')}};
+  return m;
+}
+function openFullCell(value){
+  const m=ensureFullViewModal();
+  document.getElementById('fullCellText').textContent=String(value||'');
+  m.classList.remove('hidden');
+}
+function bindPreviewCells(){
+  document.querySelectorAll('.preview-cell').forEach(el=>{
+    el.ondblclick=e=>{e.preventDefault();e.stopPropagation();openFullCell(el.dataset.full||el.textContent||'')};
+  });
+}
 function localTime(iso){try{return new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}catch{return iso||''}}
 function dateTimeCell(isoVal, day){try{const d=new Date(isoVal);return `${d.toLocaleDateString()} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`}catch{return `${day||''} ${localTime(isoVal)}`.trim()}}
 function iso(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
@@ -22,11 +60,11 @@ let HAS_UNSAVED_HISTORY_CHANGES=false;
 function markUnsaved(v=true){HAS_UNSAVED_HISTORY_CHANGES=v;const btn=$('saveHistoryBtn');if(btn)btn.textContent=v?'Save All Changes *':'Save All Changes'}
 window.addEventListener('beforeunload',e=>{if(HAS_UNSAVED_HISTORY_CHANGES){e.preventDefault();e.returnValue='You have unsaved changes.';}});
 function hrefFor(v){v=String(v||'').trim();if(!v)return'';return /^https?:\/\//i.test(v)?v:'https://'+v;}
-function submittedCell(h){const id=esc(h.id||''),val=esc(h.submittedLink||''),href=esc(hrefFor(h.submittedLink||''));const editing=!(h.submittedLink||'').trim();const view=(h.submittedLink||'').trim()?`<a class="saved-link" href="${href}" target="_blank" rel="noopener">${val}</a>`:'<span class="muted-inline">No submitted link</span>';return `<div class="history-lock-field ${editing?'is-editing':'is-locked'}" data-field="submitted"><div class="locked-view">${view}</div><input class="input history-edit submitted-edit" data-history-id="${id}" value="${val}" placeholder="Paste submitted link"></div>`;}
-function noteCell(h){const id=esc(h.id||''),val=esc(h.adminNote||''),editing=!(h.adminNote||'').trim();const view=(h.adminNote||'').trim()?`<span class="saved-note">${val}</span>`:'<span class="muted-inline">No note</span>';return `<div class="history-lock-field ${editing?'is-editing':'is-locked'}" data-field="note"><div class="locked-view">${view}</div><textarea class="note-input history-edit" data-history-id="${id}" placeholder="Add note...">${val}</textarea></div>`;}
+function submittedCell(h){const id=esc(h.id||''),val=esc(h.submittedLink||'');const editing=!(h.submittedLink||'').trim();const view=compactLink(h.submittedLink||'');return `<div class="history-lock-field ${editing?'is-editing':'is-locked'}" data-field="submitted"><div class="locked-view">${view}</div><input class="input history-edit submitted-edit" data-history-id="${id}" value="${val}" placeholder="Paste submitted link"></div>`;}
+function noteCell(h){const id=esc(h.id||''),val=esc(h.adminNote||''),editing=!(h.adminNote||'').trim();const view=compactText(h.adminNote||'', 'note');return `<div class="history-lock-field ${editing?'is-editing':'is-locked'}" data-field="note"><div class="locked-view">${view}</div><textarea class="note-input history-edit" data-history-id="${id}" placeholder="Add note...">${val}</textarea></div>`;}
 function actionCell(h){return `<div class="row-actions"><span class="save-status">${((h.submittedLink||'').trim()||(h.adminNote||'').trim())?'Saved':'Editing'}</span><button class="btn ghost tinyBtn row-edit-btn" type="button">Edit</button></div>`;}
 
-function renderHistory(history){$('historyRows').innerHTML=history.length?history.map(h=>`<tr data-history-id="${esc(h.id||'')}"><td class="nowrap">${esc(dateTimeCell(h.at,h.day))}</td><td>${esc(h.userName||h.userId||'User')}</td><td class="business-tab-cell">${esc(h.source||'Links')}</td><td class="break"><a href="${esc(h.link)}" target="_blank">${esc(h.link)}</a></td><td class="break">${submittedCell(h)}</td><td>${esc(h.text)}</td><td>${noteCell(h)}</td><td>${actionCell(h)}</td></tr>`).join(''):'<tr><td colspan="8">No submissions found for this date range.</td></tr>';setText('resultCount',`Showing ${history.length} result${history.length===1?'':'s'}`);bindHistoryInputs()}
+function renderHistory(history){$('historyRows').innerHTML=history.length?history.map(h=>`<tr data-history-id="${esc(h.id||'')}"><td class="nowrap">${esc(dateTimeCell(h.at,h.day))}</td><td>${esc(h.userName||h.userId||'User')}</td><td class="business-tab-cell">${compactText(h.source||'Links','text')}</td><td class="break">${compactLink(h.link)}</td><td class="break">${submittedCell(h)}</td><td>${compactText(h.text,'text')}</td><td>${noteCell(h)}</td><td>${actionCell(h)}</td></tr>`).join(''):'<tr><td colspan="8">No submissions found for this date range.</td></tr>';setText('resultCount',`Showing ${history.length} result${history.length===1?'':'s'}`);bindHistoryInputs();bindPreviewCells()}
 
 function bindHistoryInputs(){document.querySelectorAll('.history-edit').forEach(el=>{el.oninput=()=>{el.classList.add('dirty');markUnsaved(true);const row=el.closest('tr');if(row){const st=row.querySelector('.save-status');if(st)st.textContent='Editing';}}});document.querySelectorAll('.row-edit-btn').forEach(btn=>{btn.onclick=()=>{const row=btn.closest('tr');if(!row)return;row.querySelectorAll('.history-lock-field').forEach(f=>f.classList.remove('is-locked'));row.querySelectorAll('.history-lock-field').forEach(f=>f.classList.add('is-editing'));const st=row.querySelector('.save-status');if(st)st.textContent='Editing';markUnsaved(true);}})}
 async function saveHistoryChanges(){const byId={};document.querySelectorAll('.submitted-edit,.note-input').forEach(el=>{const id=el.dataset.historyId;if(!id)return;byId[id] ||= {id}; if(el.classList.contains('submitted-edit')) byId[id].submittedLink=el.value; if(el.classList.contains('note-input')) byId[id].adminNote=el.value;});const updates=Object.values(byId);if(!updates.length)return alert('No rows to save.');const btn=$('saveHistoryBtn');try{if(btn){btn.disabled=true;btn.textContent='Saving...'}await api('/api/history/update',{method:'POST',body:JSON.stringify({updates})});if(LAST?.report?.history){for(const u of updates){const row=LAST.report.history.find(h=>String(h.id)===String(u.id));if(row){if(typeof u.submittedLink!=='undefined')row.submittedLink=u.submittedLink;if(typeof u.adminNote!=='undefined')row.adminNote=u.adminNote;}}}markUnsaved(false);applyFilter();if(btn)btn.textContent='Saved ✅';setTimeout(()=>{if(btn)btn.textContent='Save All Changes'},1000);}catch(e){alert(e.message)}finally{if(btn)btn.disabled=false}}
