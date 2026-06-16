@@ -81,3 +81,6 @@ The Admin Completed History table now has a compact layout, sticky header, bette
 
 
 v3.10: Admin Completed History table cleanup: combined date/time into one column, removed Version column from the visible admin table, made Business Tab column smaller, and kept resizable columns.
+
+
+v3.12: Admin Completed History columns tightened. Link/text/note cells now default to narrow one-line previews, keep double-click full view, and column resize handles remain on the header. Browser column widths reset with a new v3.12 storage key.

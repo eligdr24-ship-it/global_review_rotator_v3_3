@@ -82,8 +82,10 @@ initDates();
 
 /* v3.9 Excel-style resizable columns for Admin Completed History */
 (function(){
-  const STORAGE_KEY = 'grr_admin_history_column_widths_v310';
-  const DEFAULT_WIDTHS = [150,130,105,280,280,360,260,150];
+  const STORAGE_KEY = 'grr_admin_history_column_widths_v312';
+  // v3.12: tighter default column widths so links/text stay as one-line previews.
+  // Users can still drag column edges in the header to make any column wider.
+  const DEFAULT_WIDTHS = [135,105,85,155,165,245,180,130];
   function getWidths(){
     try{const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return DEFAULT_WIDTHS.map((d,i)=>Number(v[i])||d);}catch{return DEFAULT_WIDTHS.slice();}
   }
@@ -105,7 +107,7 @@ initDates();
       let startX=0,startW=0;
       const move=e=>{
         const x=e.touches?e.touches[0].clientX:e.clientX;
-        const next=Math.max(60,startW+(x-startX)); widths[i]=next; applyWidths(table,widths);
+        const next=Math.max(55,startW+(x-startX)); widths[i]=next; applyWidths(table,widths);
       };
       const up=()=>{document.body.classList.remove('resize-active');handle.classList.remove('is-dragging');saveWidths(widths);document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);};
       const down=e=>{e.preventDefault();startX=e.touches?e.touches[0].clientX:e.clientX;startW=widths[i]||th.offsetWidth;document.body.classList.add('resize-active');handle.classList.add('is-dragging');document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);document.addEventListener('touchmove',move,{passive:false});document.addEventListener('touchend',up);};

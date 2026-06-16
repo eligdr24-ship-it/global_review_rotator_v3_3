@@ -53,3 +53,6 @@ v3.11 compact history table:
 - Double-click any preview cell to open a full-content popup with Copy button.
 - Links remain clickable.
 - Resizable columns and sticky header are preserved.
+
+
+v3.12: Admin Completed History columns tightened. Link/text/note cells now default to narrow one-line previews, keep double-click full view, and column resize handles remain on the header. Browser column widths reset with a new v3.12 storage key.
