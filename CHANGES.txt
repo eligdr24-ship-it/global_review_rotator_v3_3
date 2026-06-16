@@ -43,3 +43,6 @@ v3.9 admin history table update:
 - Added Excel-style resizable columns on the Admin Completed History table.
 - Column widths are saved in the browser on each device.
 - Improved mobile horizontal scroll and table readability.
+
+
+v3.10: Admin Completed History table cleanup: combined date/time into one column, removed Version column from the visible admin table, made Business Tab column smaller, and kept resizable columns.

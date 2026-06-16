@@ -78,3 +78,6 @@ Admin and operator history tables now support Edit + Save for submitted links. A
 ## v3.9 Admin Completed History Table
 
 The Admin Completed History table now has a compact layout, sticky header, better mobile scrolling, and Excel-style resizable columns. Drag the right edge of a column header to resize it. Column widths are saved in the browser on that device.
+
+
+v3.10: Admin Completed History table cleanup: combined date/time into one column, removed Version column from the visible admin table, made Business Tab column smaller, and kept resizable columns.
