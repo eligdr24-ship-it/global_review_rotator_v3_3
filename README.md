@@ -69,3 +69,8 @@ The Admin dashboard now includes an Admin Notes column in the Completed History 
 - Admin Completed History: Submitted Link and Admin Notes are editable.
 - Operator Analytics: My Completed History Submitted Link is editable.
 - Use Save All Changes to save all row edits at once.
+
+
+## v3.8 Locked History Edits
+
+Admin and operator history tables now support Edit + Save for submitted links. Admin notes use the same pattern. Saved submitted links become clickable, rows lock after saving, and the browser warns about unsaved changes.

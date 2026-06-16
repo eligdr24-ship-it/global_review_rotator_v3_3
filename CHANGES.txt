@@ -28,3 +28,11 @@ V3.5.1 update:
 - Added operator analytics Excel export based on selected date range.
 
 V3.7: Added editable Submitted Link fields in Admin and Operator Analytics history tables, plus Save All Changes batch save.
+
+
+v3.8: Locked edit/save history fields.
+- Admin Completed History Submitted Link and Admin Notes now use Edit + Save flow.
+- Operator Analytics My Completed History Submitted Link now uses Edit + Save flow.
+- Saved submitted links become clickable hyperlinks.
+- Rows lock after Save All Changes and can be unlocked with Edit.
+- Added unsaved changes warning before closing/leaving page.
