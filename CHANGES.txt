@@ -69,6 +69,3 @@ v3.16.1 Admin Completed History Fix:
 - Added row selection checkboxes, Select All, and Delete Selected.
 - Added Admin Trash with Restore.
 - Kept Worker dashboards and Operator Analytics unchanged.
-
-
-v3.16.4: Admin Dashboard reorganized so Upload New Excel, Main Statistics, Performance Overview, and Weekly Goals are each on separate rows. Improved Performance Overview chart styling. Worker and operator analytics pages unchanged.

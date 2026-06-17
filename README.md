@@ -110,8 +110,7 @@ v3.12: Admin Completed History columns tightened. Link/text/note cells now defau
 - Worker dashboards and Operator Analytics dashboards were not changed.
 
 
-## v3.16.4 Admin Dashboard Row Layout
-- Admin Upload New Excel, Main Statistics, Performance Overview, and Weekly Goals are now each on separate dashboard rows.
-- Upload New Excel remains a single Excel file upload only: Texts sheet + business/link tabs.
-- Performance Overview chart styling was polished.
-- Worker and operator analytics pages were not changed.
+## v3.16.5
+- Improved Performance Overview chart styling on Admin and Operator Analytics.
+- Operator Leaderboard is sorted by completed count in the selected date range.
+- Operator Analytics My Completed History rows are compact one-line rows with double-click full view.
