@@ -114,3 +114,10 @@ v3.12: Admin Completed History columns tightened. Link/text/note cells now defau
 - Improved Performance Overview chart styling on Admin and Operator Analytics.
 - Operator Leaderboard is sorted by completed count in the selected date range.
 - Operator Analytics My Completed History rows are compact one-line rows with double-click full view.
+
+## v3.16.7 Admin upload layout fix
+- Admin dashboard only: Upload New Excel now uses a clean two-line layout.
+- File + version inputs are on the first line.
+- Upload/action buttons are below the upload line to prevent overflow.
+- Admin dashboard spacing between cards has been improved for desktop and mobile.
+- No worker, operator analytics, backend, export, history, password, or upload logic changes.
