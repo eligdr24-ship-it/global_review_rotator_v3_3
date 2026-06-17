@@ -62,3 +62,10 @@ v3.16 dashboard cleanup + weekly goals:
 - Removed Last 30 Days, Last 90 Days and Last 1 Year quick buttons from Date Search. Calendar search still supports any date range.
 - Combined dashboard chart/data areas into one Performance Overview section.
 - Added Weekly Goals. Admin can edit goals; operators can view their own goal only.
+
+v3.16.1 Admin Completed History Fix:
+- Applied the requested Admin Completed History cleanup.
+- Added one-line compact rows for Submitted Link and Admin Notes.
+- Added row selection checkboxes, Select All, and Delete Selected.
+- Added Admin Trash with Restore.
+- Kept Worker dashboards and Operator Analytics unchanged.

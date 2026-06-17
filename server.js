@@ -88,18 +88,18 @@ function ensureHistoryIds(db){
   }
   return changed;
 }
-function historyItem(db,h){ const l=linkAt(db,h.linkIdx); const uid=h.userId||'standard'; const u=userInfo(uid); return { id:historyId(h), at:h.at, day:dateOnly(h.at), linkIdx:h.linkIdx, textIdx:h.textIdx, userId:uid, userName:h.userName||u.name, source:h.source||l.source||'Links', link:h.link||l.url||'', text:h.text||db.data.texts?.[h.textIdx]||'', submittedLink:h.submittedLink||'', adminNote:h.adminNote||'', status:h.status||'done', dataVersion:h.dataVersion || db.meta?.dataVersion || 1, versionName:h.versionName || db.meta?.versionName || 'Initial Data' }; }
+function historyItem(db,h){ const l=linkAt(db,h.linkIdx); const uid=h.userId||'standard'; const u=userInfo(uid); return { id:historyId(h), at:h.at, day:dateOnly(h.at), linkIdx:h.linkIdx, textIdx:h.textIdx, userId:uid, userName:h.userName||u.name, source:h.source||l.source||'Links', link:h.link||l.url||'', text:h.text||db.data.texts?.[h.textIdx]||'', submittedLink:h.submittedLink||'', adminNote:h.adminNote||'', status:h.status||'done', dataVersion:h.dataVersion || db.meta?.dataVersion || 1, versionName:h.versionName || db.meta?.versionName || 'Initial Data', deletedAt:h.deletedAt||'' }; }
 function publicState(db, userId=''){
   const totalLinks=db.data.links.length,totalTexts=db.data.texts.length;
   const doneSet=new Set(db.state.doneLinks), usedSet=new Set(db.state.usedTexts);
-  const hist=(db.state.history||[]).map(h=>historyItem(db,h));
+  const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>h.status!=='deleted');
   const s={day:dayKey(), totalLinks,totalTexts, doneToday:hist.filter(h=>h.day===dayKey()&&h.status==='done').length, lifetimeDone:hist.filter(h=>h.status==='done').length, currentVersion:db.meta?.dataVersion||1, versionName:db.meta?.versionName||'Initial Data', linksRemaining:Math.max(totalLinks-doneSet.size,0), textsRemaining:Math.max(totalTexts-usedSet.size,0), updatedAt:db.updatedAt};
   if(userId){ const uid=cleanUserId(userId); const uh=hist.filter(h=>h.userId===uid && h.status==='done'); s.user=userInfo(uid); s.userDoneToday=uh.filter(h=>h.day===dayKey()).length; s.userTotalDone=uh.length; s.userLinksDone=new Set(uh.map(h=>h.linkIdx)).size; s.userTextsDone=new Set(uh.map(h=>h.textIdx)).size; }
   return s;
 }
 function report(db, count=365, userId='', from='', to=''){
   const days=selectedDays(count,from,to);
-  let hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>days.includes(h.day));
+  let hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>h.status!=='deleted' && days.includes(h.day));
   if(userId) hist=hist.filter(h=>h.userId===cleanUserId(userId));
   const daily=days.map(day=>({day, doneCount:hist.filter(h=>h.day===day&&h.status==='done').length}));
   return { range:{from:days[0]||'', to:days[days.length-1]||'', days:days.length}, daily, totalDone:hist.filter(h=>h.status==='done').length, history:hist.reverse() };
@@ -109,9 +109,9 @@ function sourceStats(db){
   const done=new Set(db.state.doneLinks);
   return sources.map(source=>{ const idxs=db.data.links.map((_,i)=>i).filter(i=>linkAt(db,i).source===source); const completed=idxs.filter(i=>done.has(i)).length; return {source,total:idxs.length,completed,remaining:idxs.length-completed,percent:idxs.length?Math.round(completed/idxs.length*100):0}; });
 }
-function historicalSourceStats(db,count=365,from='',to=''){ const days=selectedDays(count,from,to); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>days.includes(h.day)&&h.status==='done'); const map={}; for(const h of hist){ const k=h.source||'Links'; map[k] ||= {source:k, completed:0, submittedLinks:0}; map[k].completed++; if(h.submittedLink) map[k].submittedLinks++; } return Object.values(map).sort((a,b)=>b.completed-a.completed); }
-function userBreakdown(db,count=365,from='',to=''){ const days=selectedDays(count,from,to); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>days.includes(h.day)&&h.status==='done'); return Object.values(OPERATORS).map(u=>{ const items=hist.filter(h=>h.userId===u.id); return { id:u.id, name:u.name, color:u.color, totalDone:items.length, doneToday:items.filter(h=>h.day===dayKey()).length, linksDone:new Set(items.map(h=>h.linkIdx)).size, textsDone:new Set(items.map(h=>h.textIdx)).size };  }); }
-function weeklyProgress(db){ const days=currentWeekDays(); const goals=normalizeWeeklyGoals(db.meta?.weeklyGoals||{}); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>days.includes(h.day)&&h.status==='done'); return Object.values(OPERATORS).map(u=>{ const done=hist.filter(h=>h.userId===u.id).length; const goal=goals[u.id]||0; return { id:u.id, name:u.name, color:u.color, done, goal, percent: goal ? Math.min(100, Math.round(done/goal*100)) : 0 }; }); }
+function historicalSourceStats(db,count=365,from='',to=''){ const days=selectedDays(count,from,to); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>h.status!=='deleted' && days.includes(h.day)&&h.status==='done'); const map={}; for(const h of hist){ const k=h.source||'Links'; map[k] ||= {source:k, completed:0, submittedLinks:0}; map[k].completed++; if(h.submittedLink) map[k].submittedLinks++; } return Object.values(map).sort((a,b)=>b.completed-a.completed); }
+function userBreakdown(db,count=365,from='',to=''){ const days=selectedDays(count,from,to); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>h.status!=='deleted' && days.includes(h.day)&&h.status==='done'); return Object.values(OPERATORS).map(u=>{ const items=hist.filter(h=>h.userId===u.id); return { id:u.id, name:u.name, color:u.color, totalDone:items.length, doneToday:items.filter(h=>h.day===dayKey()).length, linksDone:new Set(items.map(h=>h.linkIdx)).size, textsDone:new Set(items.map(h=>h.textIdx)).size };  }); }
+function weeklyProgress(db){ const days=currentWeekDays(); const goals=normalizeWeeklyGoals(db.meta?.weeklyGoals||{}); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>h.status!=='deleted' && days.includes(h.day)&&h.status==='done'); return Object.values(OPERATORS).map(u=>{ const done=hist.filter(h=>h.userId===u.id).length; const goal=goals[u.id]||0; return { id:u.id, name:u.name, color:u.color, done, goal, percent: goal ? Math.min(100, Math.round(done/goal*100)) : 0 }; }); }
 function nextItem(db){
   const doneSet=new Set(db.state.doneLinks), usedSet=new Set(db.state.usedTexts);
   const linkCandidates=db.data.links.map((_,i)=>i).filter(i=>!doneSet.has(i));
@@ -163,6 +163,54 @@ const server=http.createServer(async(req,res)=>{ try{ const url=new URL(req.url,
     }
     saveDb(db);
     return send(res,200,{ok:true,updated});
+  }
+
+
+  if(url.pathname==='/api/admin/history/delete'&&req.method==='POST'){
+    if(!authOk(req)) return send(res,401,{error:'Wrong admin password.'});
+    const p=await bodyJson(req);
+    const ids=new Set((Array.isArray(p.ids)?p.ids:[]).map(x=>String(x||'').trim()).filter(Boolean));
+    if(!ids.size) return send(res,400,{error:'No history rows selected.'});
+    const db=loadDb();
+    let deleted=0;
+    for(const h of (db.state.history||[])){
+      const id=historyId(h);
+      if(ids.has(id)){
+        h.id=id;
+        h.status='deleted';
+        h.deletedAt=new Date().toISOString();
+        deleted++;
+      }
+    }
+    saveDb(db);
+    return send(res,200,{ok:true,deleted});
+  }
+
+  if(url.pathname==='/api/admin/history/trash'){
+    if(!authOk(req)) return send(res,401,{error:'Wrong admin password.'});
+    const db=loadDb();
+    const trash=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>h.status==='deleted').reverse();
+    return send(res,200,{ok:true,trash});
+  }
+
+  if(url.pathname==='/api/admin/history/restore'&&req.method==='POST'){
+    if(!authOk(req)) return send(res,401,{error:'Wrong admin password.'});
+    const p=await bodyJson(req);
+    const ids=new Set((Array.isArray(p.ids)?p.ids:[]).map(x=>String(x||'').trim()).filter(Boolean));
+    if(!ids.size) return send(res,400,{error:'No history rows selected.'});
+    const db=loadDb();
+    let restored=0;
+    for(const h of (db.state.history||[])){
+      const id=historyId(h);
+      if(ids.has(id) && h.status==='deleted'){
+        h.id=id;
+        h.status='done';
+        delete h.deletedAt;
+        restored++;
+      }
+    }
+    saveDb(db);
+    return send(res,200,{ok:true,restored});
   }
 
   if(url.pathname==='/api/admin/login'&&req.method==='POST'){ const p=await bodyJson(req); return send(res,p.password===ADMIN_PASSWORD?200:401,{ok:p.password===ADMIN_PASSWORD}); }

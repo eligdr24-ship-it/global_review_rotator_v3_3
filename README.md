@@ -102,3 +102,9 @@ v3.12: Admin Completed History columns tightened. Link/text/note cells now defau
 - Date Search quick buttons were simplified to This Week, Today, and Last 7 Days. Full calendar date search still works for any date range.
 - Performance charts/summary sections are combined into a cleaner Performance Overview section.
 - Weekly Goals were added for Operator 1–4. Admin can edit goals from the Admin Dashboard; operators can only view their own weekly goal.
+
+## v3.16.1 Admin Completed History Fix
+- Admin Completed History now has compact one-line rows.
+- Admin can select history rows and move them to Trash.
+- Deleted rows are excluded from history/statistics/export and can be restored from Admin Trash.
+- Worker dashboards and Operator Analytics dashboards were not changed.
