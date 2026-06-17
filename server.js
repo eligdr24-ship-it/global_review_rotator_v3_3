@@ -16,6 +16,15 @@ const OPERATORS = {
   operator3: { id:'operator3', name:'Operator 3', color:'#16a34a', env:'OPERATOR3_PASSWORD' },
   operator4: { id:'operator4', name:'Operator 4', color:'#f97316', env:'OPERATOR4_PASSWORD' }
 };
+const DEFAULT_WEEKLY_GOALS = { operator1: 50, operator2: 50, operator3: 50, operator4: 50 };
+function normalizeWeeklyGoals(goals={}){
+  const out = {};
+  for (const id of Object.keys(OPERATORS)) {
+    const n = Number(goals[id]);
+    out[id] = Number.isFinite(n) && n >= 0 ? Math.round(n) : DEFAULT_WEEKLY_GOALS[id];
+  }
+  return out;
+}
 function operatorPassword(id){ const uid=cleanUserId(id); return process.env[OPERATORS[uid]?.env] || uid; }
 function operatorAuthOk(req, id){ const uid=cleanUserId(id); return String(req.headers['x-operator-password'] || '') === String(operatorPassword(uid)); }
 function cleanUserId(value){ const id = String(value||'').toLowerCase().replace(/[^a-z0-9_-]/g,''); return OPERATORS[id] ? id : (id === 'standard' ? 'standard' : 'operator1'); }
@@ -33,6 +42,7 @@ function dateRangeDays(from,to){
   return out;
 }
 function selectedDays(count=365,from='',to=''){ return dateRangeDays(from,to) || recentDays(Math.min(Math.max(Number(count)||365,1),365)); }
+function currentWeekDays(){ const now=new Date(); const start=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate())); start.setUTCDate(start.getUTCDate()-start.getUTCDay()); const end=new Date(start); end.setUTCDate(start.getUTCDate()+6); return dateRangeDays(dayKey(start), dayKey(end)); }
 function isUrl(s){ return /^https?:\/\//i.test(String(s||'').trim()); }
 function normalizeLinks(raw){
   if (!Array.isArray(raw)) return [];
@@ -55,7 +65,7 @@ function normalizeData(data){
 function loadSeed(){ try { return normalizeData(JSON.parse(fs.readFileSync(SEED_PATH,'utf8'))); } catch { return {links:[],texts:[]}; } }
 function cleanState(state={}){ return { doneLinks:Array.isArray(state.doneLinks)?state.doneLinks:[], usedTexts:Array.isArray(state.usedTexts)?state.usedTexts:[], history:Array.isArray(state.history)?state.history:[], sourcePtr:Number.isInteger(state.sourcePtr)?state.sourcePtr:0 }; }
 function activeOnlyState(state={}){ return { doneLinks:[], usedTexts:[], history:Array.isArray(state.history)?state.history:[], sourcePtr:0 }; }
-function cleanMeta(meta={}){ return { dataVersion:Number.isInteger(meta.dataVersion)?meta.dataVersion:1, versionName:String(meta.versionName||'Initial Data'), uploadArchive:Array.isArray(meta.uploadArchive)?meta.uploadArchive:[] }; }
+function cleanMeta(meta={}){ return { dataVersion:Number.isInteger(meta.dataVersion)?meta.dataVersion:1, versionName:String(meta.versionName||'Initial Data'), uploadArchive:Array.isArray(meta.uploadArchive)?meta.uploadArchive:[], weeklyGoals: normalizeWeeklyGoals(meta.weeklyGoals || {}) }; }
 function defaultDb(){ return { data:loadSeed(), state:cleanState(), meta:cleanMeta({ dataVersion:1, versionName:'Initial Data', uploadArchive:[{version:1, name:'Initial Data', uploadedAt:new Date().toISOString(), linkCount:loadSeed().links.length, textCount:loadSeed().texts.length, sheets:[...new Set(loadSeed().links.map(l=>l.source||'Links'))]}] }), updatedAt:new Date().toISOString() }; }
 function ensureDb(){ fs.mkdirSync(DATA_DIR,{recursive:true}); if(!fs.existsSync(SEED_PATH)){ const bundled=path.join(__dirname,'data','seed.json'); if(bundled!==SEED_PATH && fs.existsSync(bundled)) fs.copyFileSync(bundled, SEED_PATH); } if(!fs.existsSync(DB_PATH)) saveDb(defaultDb()); }
 function migrateDb(db){ db.data = normalizeData(db.data || loadSeed()); db.state = cleanState(db.state || {}); db.meta = cleanMeta(db.meta || {}); return db; }
@@ -101,6 +111,7 @@ function sourceStats(db){
 }
 function historicalSourceStats(db,count=365,from='',to=''){ const days=selectedDays(count,from,to); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>days.includes(h.day)&&h.status==='done'); const map={}; for(const h of hist){ const k=h.source||'Links'; map[k] ||= {source:k, completed:0, submittedLinks:0}; map[k].completed++; if(h.submittedLink) map[k].submittedLinks++; } return Object.values(map).sort((a,b)=>b.completed-a.completed); }
 function userBreakdown(db,count=365,from='',to=''){ const days=selectedDays(count,from,to); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>days.includes(h.day)&&h.status==='done'); return Object.values(OPERATORS).map(u=>{ const items=hist.filter(h=>h.userId===u.id); return { id:u.id, name:u.name, color:u.color, totalDone:items.length, doneToday:items.filter(h=>h.day===dayKey()).length, linksDone:new Set(items.map(h=>h.linkIdx)).size, textsDone:new Set(items.map(h=>h.textIdx)).size };  }); }
+function weeklyProgress(db){ const days=currentWeekDays(); const goals=normalizeWeeklyGoals(db.meta?.weeklyGoals||{}); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>days.includes(h.day)&&h.status==='done'); return Object.values(OPERATORS).map(u=>{ const done=hist.filter(h=>h.userId===u.id).length; const goal=goals[u.id]||0; return { id:u.id, name:u.name, color:u.color, done, goal, percent: goal ? Math.min(100, Math.round(done/goal*100)) : 0 }; }); }
 function nextItem(db){
   const doneSet=new Set(db.state.doneLinks), usedSet=new Set(db.state.usedTexts);
   const linkCandidates=db.data.links.map((_,i)=>i).filter(i=>!doneSet.has(i));
@@ -124,7 +135,7 @@ function serveStatic(req,res){ let p=req.url.split('?')[0]; if(p==='/')p='/index
 
 const server=http.createServer(async(req,res)=>{ try{ const url=new URL(req.url,`http://${req.headers.host}`);
   if(url.pathname==='/api/status') return send(res,200,publicState(loadDb(), url.searchParams.get('user')||''));
-  if(url.pathname==='/api/report') { const db=loadDb(); const user=url.searchParams.get('user')||''; if(user && !operatorAuthOk(req,user)) return send(res,401,{error:'Wrong operator password.'}); const from=url.searchParams.get('from')||'', to=url.searchParams.get('to')||''; const rep=report(db, Number(url.searchParams.get('days')||365), user, from, to); const st=publicState(db,user); st.rangeDone=rep.totalDone; return send(res,200,{status:st, report:rep}); }
+  if(url.pathname==='/api/report') { const db=loadDb(); const user=url.searchParams.get('user')||''; if(user && !operatorAuthOk(req,user)) return send(res,401,{error:'Wrong operator password.'}); const from=url.searchParams.get('from')||'', to=url.searchParams.get('to')||''; const rep=report(db, Number(url.searchParams.get('days')||365), user, from, to); const st=publicState(db,user); st.rangeDone=rep.totalDone; const wp=weeklyProgress(db); const userWeekly=user?wp.find(x=>x.id===cleanUserId(user)):null; return send(res,200,{status:{...st, weeklyGoal:userWeekly?.goal||0, weeklyDone:userWeekly?.done||0, weeklyPercent:userWeekly?.percent||0}, report:rep, weekly:userWeekly}); }
   if(url.pathname==='/api/operator/login'&&req.method==='POST'){ const p=await bodyJson(req); const uid=cleanUserId(p.userId); const ok=String(p.password||'')===String(operatorPassword(uid)); return send(res,ok?200:401,{ok,user:userInfo(uid)}); }
   if(url.pathname==='/api/next') { const user=url.searchParams.get('user')||''; const db=loadDb(); const item=nextItem(db); if(!item)return send(res,400,{error:'No links/texts loaded yet.'}); if(item.completed)return send(res,200,{completed:true,status:publicState(db,user)}); saveDb(db); return send(res,200,{...item,status:publicState(db,user)}); }
   if(url.pathname==='/api/done'&&req.method==='POST'){ const p=await bodyJson(req); const db=loadDb(); const linkIdx=Number(p.linkIdx), textIdx=Number(p.textIdx); if(!Number.isInteger(linkIdx)||!Number.isInteger(textIdx))return send(res,400,{error:'Missing link/text selection.'}); const uid=p.userId?cleanUserId(p.userId):'standard'; const u=userInfo(uid); const l=linkAt(db,linkIdx); if(!db.state.doneLinks.includes(linkIdx))db.state.doneLinks.push(linkIdx); if(!db.state.usedTexts.includes(textIdx))db.state.usedTexts.push(textIdx); const rec={id:crypto.randomUUID(),at:new Date().toISOString(),status:'done',userId:uid,userName:u.name,linkIdx,textIdx,source:l.source,link:l.url,text:db.data.texts[textIdx]||'',submittedLink:String(p.submittedLink||'').trim(),adminNote:'',dataVersion:db.meta?.dataVersion||1,versionName:db.meta?.versionName||'Initial Data'}; db.state.history.push(rec); saveDb(db); return send(res,200,{ok:true,status:publicState(db,uid)}); }
@@ -156,7 +167,14 @@ const server=http.createServer(async(req,res)=>{ try{ const url=new URL(req.url,
 
   if(url.pathname==='/api/admin/login'&&req.method==='POST'){ const p=await bodyJson(req); return send(res,p.password===ADMIN_PASSWORD?200:401,{ok:p.password===ADMIN_PASSWORD}); }
   if(url.pathname.startsWith('/api/admin/')){ if(!authOk(req))return send(res,401,{error:'Wrong admin password.'}); const db=loadDb();
-    if(url.pathname==='/api/admin/data'){ const c=url.searchParams.get('days')||365; const from=url.searchParams.get('from')||'', to=url.searchParams.get('to')||''; const user=url.searchParams.get('user')||''; const rep=report(db,c,user,from,to); const st=publicState(db); st.rangeDone=rep.totalDone; return send(res,200,{...st, meta:db.meta, uploadArchive:db.meta?.uploadArchive||[], report:rep, users:userBreakdown(db,c,from,to), sources:sourceStats(db), historicalSources:historicalSourceStats(db,c,from,to), operators:Object.values(OPERATORS).map(u=>({id:u.id,name:u.name,color:u.color})), links:db.data.links, texts:db.data.texts}); }
+    if(url.pathname==='/api/admin/data'){ const c=url.searchParams.get('days')||365; const from=url.searchParams.get('from')||'', to=url.searchParams.get('to')||''; const user=url.searchParams.get('user')||''; const rep=report(db,c,user,from,to); const st=publicState(db); st.rangeDone=rep.totalDone; return send(res,200,{...st, meta:db.meta, uploadArchive:db.meta?.uploadArchive||[], report:rep, users:userBreakdown(db,c,from,to), sources:sourceStats(db), historicalSources:historicalSourceStats(db,c,from,to), weeklyGoals:normalizeWeeklyGoals(db.meta?.weeklyGoals||{}), weeklyProgress:weeklyProgress(db), operators:Object.values(OPERATORS).map(u=>({id:u.id,name:u.name,color:u.color})), links:db.data.links, texts:db.data.texts}); }
+    if(url.pathname==='/api/admin/weekly-goals'&&req.method==='POST'){
+      const p=await bodyJson(req);
+      db.meta=cleanMeta(db.meta||{});
+      db.meta.weeklyGoals=normalizeWeeklyGoals(p.goals||{});
+      saveDb(db);
+      return send(res,200,{ok:true,weeklyGoals:db.meta.weeklyGoals,weeklyProgress:weeklyProgress(db)});
+    }
     if(url.pathname==='/api/admin/upload'&&req.method==='POST'){ const p=await bodyJson(req); const texts=(p.texts||[]).map(String).map(s=>s.trim()).filter(Boolean); let links=[]; let sheets=[]; if(p.linkTabs&&typeof p.linkTabs==='object'){ for(const [source,arr] of Object.entries(p.linkTabs)){ if(source.toLowerCase()==='texts')continue; const clean=(arr||[]).map(x=>String(x||'').trim()).filter(Boolean); if(clean.length) sheets.push(source); clean.forEach((u,idx)=>links.push({url:u,source,originalIndex:idx})); } } else { links=normalizeLinks(p.links||[]); sheets=[...new Set(links.map(l=>l.source||'Links'))]; } if(!links.length||!texts.length)return send(res,400,{error:'Upload needs at least one link and one text.'}); const oldHistory=Array.isArray(db.state.history)?db.state.history:[]; db.meta=cleanMeta(db.meta||{}); const nextVersion=(db.meta.dataVersion||0)+1; const versionName=String(p.versionName||p.fileName||`Version ${nextVersion}`).trim()||`Version ${nextVersion}`; db.data={links,texts}; db.state=activeOnlyState({history:oldHistory}); db.meta.dataVersion=nextVersion; db.meta.versionName=versionName; db.meta.uploadArchive ||= []; db.meta.uploadArchive.push({version:nextVersion,name:versionName,uploadedAt:new Date().toISOString(),linkCount:links.length,textCount:texts.length,sheets}); saveDb(db); fs.writeFileSync(SEED_PATH,JSON.stringify(db.data,null,2)); return send(res,200,{ok:true,status:{...publicState(db),meta:db.meta,uploadArchive:db.meta.uploadArchive,report:report(db,365),users:userBreakdown(db),sources:sourceStats(db),historicalSources:historicalSourceStats(db)}}); }
     if(url.pathname==='/api/admin/history-note'&&req.method==='POST'){ const p=await bodyJson(req); const id=String(p.id||'').trim(); const note=String(p.note||'').slice(0,2000); if(!id)return send(res,400,{error:'Missing history row id.'}); let found=false; for(const h of (db.state.history||[])){ if(historyId(h)===id){ h.id=id; h.adminNote=note; found=true; break; } } if(!found)return send(res,404,{error:'History row not found.'}); saveDb(db); return send(res,200,{ok:true,id,note}); }
     if(url.pathname==='/api/admin/undo'&&req.method==='POST'){ const last=db.state.history.pop(); if(last){ db.state.doneLinks=db.state.doneLinks.filter(i=>i!==last.linkIdx); db.state.usedTexts=db.state.usedTexts.filter(i=>i!==last.textIdx); } saveDb(db); return send(res,200,{ok:true,status:{...publicState(db),meta:db.meta,uploadArchive:db.meta?.uploadArchive||[],report:report(db,365),users:userBreakdown(db),sources:sourceStats(db),historicalSources:historicalSourceStats(db)}}); }

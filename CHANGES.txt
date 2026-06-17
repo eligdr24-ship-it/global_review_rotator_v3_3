@@ -56,3 +56,9 @@ v3.11 compact history table:
 
 
 v3.12: Admin Completed History columns tightened. Link/text/note cells now default to narrow one-line previews, keep double-click full view, and column resize handles remain on the header. Browser column widths reset with a new v3.12 storage key.
+
+v3.16 dashboard cleanup + weekly goals:
+- Moved Completed History above Recent Activity on Admin and Operator Analytics dashboards.
+- Removed Last 30 Days, Last 90 Days and Last 1 Year quick buttons from Date Search. Calendar search still supports any date range.
+- Combined dashboard chart/data areas into one Performance Overview section.
+- Added Weekly Goals. Admin can edit goals; operators can view their own goal only.

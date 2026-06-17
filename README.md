@@ -95,3 +95,10 @@ v3.12: Admin Completed History columns tightened. Link/text/note cells now defau
 - Forces compact fixed columns in Admin Completed History.
 - Uses a new saved-width key so old wide column settings do not carry over.
 - Adds Reset Column Sizes button in Admin history tip line.
+
+## v3.16 Dashboard Cleanup + Weekly Goals
+
+- Admin and Operator Analytics dashboards now show Completed History above Recent Activity.
+- Date Search quick buttons were simplified to This Week, Today, and Last 7 Days. Full calendar date search still works for any date range.
+- Performance charts/summary sections are combined into a cleaner Performance Overview section.
+- Weekly Goals were added for Operator 1–4. Admin can edit goals from the Admin Dashboard; operators can only view their own weekly goal.
