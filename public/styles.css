@@ -503,8 +503,30 @@
 @media(max-width:760px){#history table.history-table{width:1120px!important;min-width:1120px!important;max-width:1120px!important;}#history table.history-table th,#history table.history-table td{font-size:11px!important;padding:5px 6px!important}.trash-table{width:920px!important;min-width:920px!important}.history-tools .btn{font-size:11px!important;padding:7px 9px!important}}
 
 
-/* v3.16.3 Admin dashboard reorganization */
-.admin-top-row{grid-template-columns:minmax(360px,.95fr) minmax(420px,1.25fr);align-items:stretch}
-.compact-upload-panel .drop-zone{padding:16px}.compact-upload-panel .drop-zone .input{width:100%;margin:6px 0}.compact-upload-panel .button-row.compact{grid-template-columns:1fr 1fr;gap:8px}.compact-upload-panel .btn{font-size:13px;padding:10px 12px;border-radius:13px}.admin-main-stats .card-head{align-items:flex-start}.stats-overview-grid{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:10px;margin-bottom:14px}.admin-main-stats .mini-stat{min-height:74px;padding:12px}.admin-main-stats .mini-stat span{width:38px;height:38px}.admin-main-stats .mini-stat b{font-size:22px}.admin-progress-slim{display:grid;grid-template-columns:112px 1fr;gap:18px;align-items:center}.compact-ring{width:104px;height:104px}.compact-ring:before{inset:10px}.compact-ring strong{font-size:22px}.hidden-stat-values{display:none!important}.admin-performance-row{grid-template-columns:minmax(520px,1.45fr) minmax(360px,.75fr);align-items:stretch}.enhanced-performance{position:relative;overflow:hidden}.enhanced-performance:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 12% 0%,rgba(124,58,237,.14),transparent 42%),radial-gradient(circle at 88% 0%,rgba(0,122,255,.12),transparent 44%);pointer-events:none}.enhanced-performance>*{position:relative}.enhanced-chart{height:330px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,.13));padding:14px}.enhanced-chart .line-chart{height:100%}.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px}.upload-archive-panel{margin-bottom:18px}.chart-label{font-size:11px;fill:var(--muted);font-weight:800}.chart-grid{stroke:var(--line);stroke-width:1}.chart-line{filter:drop-shadow(0 8px 14px rgba(124,58,237,.18));stroke-width:5}.chart-dot{filter:drop-shadow(0 4px 8px rgba(15,23,42,.18))}
-@media(max-width:1180px){.admin-top-row,.admin-performance-row,.three-col{grid-template-columns:1fr}.stats-overview-grid{grid-template-columns:1fr 1fr}.enhanced-chart{height:280px}}
-@media(max-width:640px){.stats-overview-grid{grid-template-columns:1fr}.admin-progress-slim{grid-template-columns:1fr}.compact-ring{margin:auto}.compact-upload-panel .button-row.compact{grid-template-columns:1fr}.enhanced-chart{height:230px;padding:8px}.three-col{gap:12px}}
+/* v3.16.4 admin dashboard: single-row sections + cleaner chart */
+.upload-row-panel,
+.main-statistics-panel,
+.improved-performance-panel,
+.weekly-goals-panel,
+.upload-archive-panel,
+#history,
+#trash,
+#activity{margin-bottom:18px}
+.admin-upload-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(260px,.65fr);gap:16px;align-items:start}
+.upload-drop-compact{padding:16px}
+.upload-drop-compact .input{width:100%;margin-top:8px}
+.upload-drop-compact .input:first-child{margin-top:0}
+.upload-actions-compact{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.upload-actions-compact .btn{min-height:40px;padding:10px 12px;font-size:13px;border-radius:13px}
+.upload-actions-compact #exportBtn{grid-column:1/-1}
+.admin-stats-layout{display:grid;grid-template-columns:minmax(320px,1.25fr) minmax(230px,.65fr) minmax(330px,1fr);gap:16px;align-items:stretch}
+.stat-subpanel,.compact-stat-grid{background:rgba(255,255,255,.42);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--soft)}
+[data-theme="dark"] .stat-subpanel,[data-theme="dark"] .compact-stat-grid{background:rgba(255,255,255,.045)}
+.compact-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.compact-stat-grid .mini-stat{min-height:74px;padding:12px}.compact-stat-grid .mini-stat b{font-size:22px}.compact-stat-grid .mini-stat span{width:40px;height:40px}
+.improved-performance-panel{background:linear-gradient(135deg,rgba(255,255,255,.82),rgba(255,255,255,.58));overflow:hidden;position:relative}
+[data-theme="dark"] .improved-performance-panel{background:linear-gradient(135deg,rgba(31,41,55,.86),rgba(24,33,48,.62))}
+.performance-chart-shell{border:1px solid var(--line);border-radius:22px;padding:12px;background:linear-gradient(180deg,rgba(124,58,237,.08),rgba(0,122,255,.035));box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+.improved-performance-panel .line-chart{height:320px;display:block}.improved-performance-panel .chart-line{stroke-width:5}.improved-performance-panel .chart-dot{r:5px}
+.admin-separated-panels{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:18px}.admin-separated-panels>.panel{min-width:0}.admin-separated-panels .compact-list{max-height:260px;overflow:auto}
+@media(max-width:1180px){.admin-stats-layout{grid-template-columns:1fr}.admin-separated-panels{grid-template-columns:1fr}.admin-upload-layout{grid-template-columns:1fr}.upload-actions-compact{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.upload-actions-compact{grid-template-columns:1fr}.admin-stats-layout .progress-layout{grid-template-columns:1fr}.admin-stats-layout .ring{margin:auto}.compact-stat-grid{grid-template-columns:1fr}.improved-performance-panel .line-chart{height:210px}.performance-chart-shell{padding:8px}.upload-drop-compact{padding:12px}}

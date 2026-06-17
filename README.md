@@ -110,12 +110,8 @@ v3.12: Admin Completed History columns tightened. Link/text/note cells now defau
 - Worker dashboards and Operator Analytics dashboards were not changed.
 
 
-## v3.16.3 Admin Dashboard Reorganization
-- Admin Date Search keeps only This Week, Today, Last 7 Days, plus full calendar search.
-- Upload New Excel is now in the second row beside Main Statistics and uses one Excel file only.
-- Current Data Version and Lifetime Completed Jobs cards were removed from the visible dashboard.
-- Performance Overview is separated and visually improved.
-- Weekly Goals remain editable only by Admin.
-- Completed History is placed on the third main dashboard line.
-- Operator Leaderboard, Business Tab Analytics, and Historical Business Tabs are separated again.
-- Upload Archive, Trash, and Recent Activity remain visible lower on the dashboard.
+## v3.16.4 Admin Dashboard Row Layout
+- Admin Upload New Excel, Main Statistics, Performance Overview, and Weekly Goals are now each on separate dashboard rows.
+- Upload New Excel remains a single Excel file upload only: Texts sheet + business/link tabs.
+- Performance Overview chart styling was polished.
+- Worker and operator analytics pages were not changed.
