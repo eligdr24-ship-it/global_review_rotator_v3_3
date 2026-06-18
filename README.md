@@ -121,3 +121,19 @@ v3.12: Admin Completed History columns tightened. Link/text/note cells now defau
 - Upload/action buttons are below the upload line to prevent overflow.
 - Admin dashboard spacing between cards has been improved for desktop and mobile.
 - No worker, operator analytics, backend, export, history, password, or upload logic changes.
+
+## v3.16.8 Admin Export Multi-Sheet Update
+
+Admin Excel report download now includes these sheets:
+
+- Summary
+- Daily Counter
+- Completed History with full history columns
+- Business Links Used
+- Text List Used
+- Operators
+- Active Business Tabs
+- Historical Business Tabs
+- Upload Archive
+
+No dashboard layout, backend workflow, password, upload, worker, or operator analytics behavior was changed.

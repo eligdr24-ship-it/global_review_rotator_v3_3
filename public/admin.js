@@ -129,7 +129,67 @@ function renderAll(j){LAST=j;fillProgress(j);renderUsers(j.users);renderSources(
 async function refresh(){renderAll(await api(`/api/admin/data?${dateParams()}&user=${CURRENT_USER}`))}
 function readWorkbook(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=e=>{try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});const sheetRows=name=>{const ws=wb.Sheets[name];return ws?XLSX.utils.sheet_to_json(ws,{header:1}).map(r=>String(r[0]||'').trim()).filter(Boolean):[]};let texts=sheetRows('Texts');if(!texts.length)texts=sheetRows('Text');const linkTabs={};for(const name of wb.SheetNames){if(name.toLowerCase()==='texts'||name.toLowerCase()==='text')continue;const rows=sheetRows(name).filter(Boolean);if(rows.length)linkTabs[name]=rows;}resolve({texts,linkTabs})}catch(err){reject(err)}};reader.onerror=reject;reader.readAsArrayBuffer(file)})}
 async function saveWeeklyGoals(){const goals={};document.querySelectorAll('.weekly-goal-input').forEach(i=>{goals[i.dataset.user]=Number(i.value)||0});const btn=$('saveGoalsBtn');try{if(btn){btn.disabled=true;btn.textContent='Saving...'}const r=await api('/api/admin/weekly-goals',{method:'POST',body:JSON.stringify({goals})});if(LAST){LAST.weeklyGoals=r.weeklyGoals;LAST.weeklyProgress=r.weeklyProgress;}renderWeeklyGoals(r.weeklyProgress,r.weeklyGoals);if(btn)btn.textContent='Saved ✅';setTimeout(()=>{if(btn)btn.textContent='Save Goals'},900)}catch(e){alert(e.message)}finally{if(btn)btn.disabled=false}}
-function exportXlsx(){if(!LAST)return;const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{dateFrom:$('fromDate')?.value,dateTo:$('toDate')?.value,totalLinks:LAST.totalLinks,linksRemaining:LAST.linksRemaining,totalTexts:LAST.totalTexts,textsRemaining:LAST.textsRemaining,doneInRange:LAST.rangeDone,doneToday:LAST.doneToday,updatedAt:LAST.updatedAt,currentVersion:LAST.currentVersion,versionName:LAST.versionName,lifetimeDone:LAST.lifetimeDone}]),'Summary');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.users||[]),'Operators');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.sources||[]),'Active Business Tabs');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.historicalSources||[]),'Historical Business Tabs');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.uploadArchive||[]),'Upload Archive');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet((LAST.report?.history||[]).map(h=>({Date:h.day,Time:localTime(h.at),Operator:h.userName,UserId:h.userId,BusinessTab:h.source,OriginalLink:h.link,SubmittedLink:h.submittedLink,Text:h.text,Status:h.status,DataVersion:h.dataVersion,VersionName:h.versionName,AdminNote:h.adminNote||''}))), 'History');XLSX.writeFile(wb,`global-review-rotator-report-${new Date().toISOString().slice(0,10)}.xlsx`)}
+function exportXlsx(){
+  if(!LAST)return;
+  const wb=XLSX.utils.book_new();
+  const historyRows=(LAST.report?.history||[]).map(h=>({
+    DateTime: dateTimeCell(h.at,h.day),
+    Date: h.day,
+    Time: localTime(h.at),
+    Operator: h.userName,
+    UserId: h.userId,
+    BusinessTab: h.source,
+    OriginalLink: h.link,
+    SubmittedLink: h.submittedLink||'',
+    Text: h.text,
+    Status: h.status,
+    DataVersion: h.dataVersion,
+    VersionName: h.versionName,
+    LinkIndex: h.linkIdx,
+    TextIndex: h.textIdx,
+    AdminNote: h.adminNote||'',
+    CompletedAt: h.at
+  }));
+  const linkRows=(LAST.links||[]).map((l,i)=>({
+    Index:i+1,
+    BusinessTab: (typeof l==='string'?'Links':(l.source||'Links')),
+    Link: (typeof l==='string'?l:(l.url||'')),
+    OriginalIndex: (typeof l==='string'?i:(l.originalIndex ?? i)),
+    CurrentVersion: LAST.currentVersion||LAST.meta?.dataVersion||'',
+    VersionName: LAST.versionName||LAST.meta?.versionName||''
+  }));
+  const textRows=(LAST.texts||[]).map((text,i)=>({
+    Index:i+1,
+    Text:text,
+    CurrentVersion: LAST.currentVersion||LAST.meta?.dataVersion||'',
+    VersionName: LAST.versionName||LAST.meta?.versionName||''
+  }));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{
+    dateFrom:$('fromDate')?.value,
+    dateTo:$('toDate')?.value,
+    reportFrom:LAST.report?.range?.from||'',
+    reportTo:LAST.report?.range?.to||'',
+    totalLinks:LAST.totalLinks,
+    linksRemaining:LAST.linksRemaining,
+    totalTexts:LAST.totalTexts,
+    textsRemaining:LAST.textsRemaining,
+    doneInRange:LAST.rangeDone,
+    doneToday:LAST.doneToday,
+    updatedAt:LAST.updatedAt,
+    currentVersion:LAST.currentVersion,
+    versionName:LAST.versionName,
+    lifetimeDone:LAST.lifetimeDone
+  }]),'Summary');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.report?.daily||[]),'Daily Counter');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(historyRows),'Completed History');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(linkRows),'Business Links Used');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(textRows),'Text List Used');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.users||[]),'Operators');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.sources||[]),'Active Business Tabs');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.historicalSources||[]),'Historical Business Tabs');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.uploadArchive||[]),'Upload Archive');
+  XLSX.writeFile(wb,`global-review-rotator-report-${new Date().toISOString().slice(0,10)}.xlsx`)
+}
 $('loginBtn').onclick=async()=>{PASS=$('pass').value;const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:PASS})});if(!r.ok)return alert('Wrong password');$('login').classList.add('hidden');$('panel').classList.remove('hidden');refresh().then(()=>loadTrash()).catch(e=>alert(e.message))};
 $('searchBox').oninput=applyFilter;$('userFilter').onchange=applyFilter;document.querySelectorAll('.op-filter').forEach(a=>a.onclick=e=>{e.preventDefault();CURRENT_USER=a.dataset.user||'';document.querySelectorAll('.op-filter').forEach(x=>x.classList.remove('active'));a.classList.add('active');$('userFilter').value=CURRENT_USER;refresh().catch(err=>alert(err.message));});
 $('uploadBtn').onclick=async()=>{try{const f=$('file').files[0];if(!f)return alert('Choose an Excel file first');const data=await readWorkbook(f);const totalLinks=Object.values(data.linkTabs).reduce((a,b)=>a+b.length,0);if(!confirm(`Replace current data with ${totalLinks} links across ${Object.keys(data.linkTabs).length} tabs and ${data.texts.length} texts?`))return;data.versionName=($('versionNameInput')?.value||f.name||'').trim();data.fileName=f.name;const r=await api('/api/admin/upload',{method:'POST',body:JSON.stringify(data)});renderAll(r.status);alert('Uploaded ✅\nHistory was preserved.')}catch(e){alert(e.message)}};
