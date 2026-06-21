@@ -6,13 +6,20 @@
     <section class="simple-card operator-selector">
       <div class="simple-head"><div class="quote-icon">✦</div><h1>Choose Operator</h1></div>
       <p class="hint">Open your operator work dashboard. Work pages are fast and open; analytics pages are password protected.</p>
-      <div class="operator-grid">
-        <a class="operator-choice" href="/worker/operator1"><span>1</span><b>Operator 1</b><em>Work Dashboard</em></a>
-        <a class="operator-choice" href="/worker/operator2"><span>2</span><b>Operator 2</b><em>Work Dashboard</em></a>
-        <a class="operator-choice" href="/worker/operator3"><span>3</span><b>Operator 3</b><em>Work Dashboard</em></a>
-        <a class="operator-choice" href="/worker/operator4"><span>4</span><b>Operator 4</b><em>Work Dashboard</em></a>
-      </div>
+      <div class="operator-grid" id="operatorGrid"><p class="small">Loading operators...</p></div>
       <a class="btn ghost full" href="/admin">Admin Dashboard</a>
     </section>
   </main>
+  <script>
+    const grid=document.getElementById('operatorGrid');
+    function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+    async function loadOperators(){
+      try{
+        const r=await fetch('/api/operators'); const j=await r.json();
+        const ops=j.operators||[];
+        grid.innerHTML=ops.map((op,i)=>`<a class="operator-choice" href="/worker/${esc(op.id)}"><span>${i+1}</span><b>${esc(op.name)}</b><em>Work Dashboard</em></a>`).join('') || '<p class="small">No operators found.</p>';
+      }catch(e){ grid.innerHTML='<p class="small">Could not load operators.</p>'; }
+    }
+    loadOperators();
+  </script>
 </body></html>

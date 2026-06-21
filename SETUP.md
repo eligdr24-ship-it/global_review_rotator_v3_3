@@ -57,6 +57,6 @@ The work dashboards are open/no-password for speed.
 The analytics dashboards require the matching operator password.
 The admin dashboard requires the admin password.
 
-## v3.16.8 Export Note
+## Adding Operators
 
-The Admin report export now includes extra sheets for Completed History, Business Links Used, and Text List Used.
+After deployment, log into `/admin` and use **User Management** to add new operators. Enter a display name, analytics password, and weekly goal. The system will generate the next route automatically, such as `/worker/operator5` and `/analytics/operator5`.

@@ -1,14 +1,9 @@
 let current = null;
 const $ = id => document.getElementById(id);
-const USERS = {
-  operator1: { id:'operator1', name:'Operator 1' },
-  operator2: { id:'operator2', name:'Operator 2' },
-  operator3: { id:'operator3', name:'Operator 3' },
-  operator4: { id:'operator4', name:'Operator 4' }
-};
-function currentUserId(){ const p = location.pathname.split('/').filter(Boolean); return USERS[p[1]] ? p[1] : 'operator1'; }
+function labelFromId(id){ const m=String(id||'').match(/operator(\d+)/i); return m ? `Operator ${m[1]}` : String(id||'Operator'); }
+function currentUserId(){ const p = location.pathname.split('/').filter(Boolean); return (p[1] || 'operator1').toLowerCase().replace(/[^a-z0-9_-]/g,'') || 'operator1'; }
 const USER_ID = currentUserId();
-const USER = USERS[USER_ID];
+let USER = { id: USER_ID, name: labelFromId(USER_ID) };
 async function api(p,opt={}){
   opt.headers = { ...(opt.headers || {}), 'Content-Type':'application/json' };
   const r = await fetch(p,opt);
@@ -19,6 +14,7 @@ async function api(p,opt={}){
   if(!r.ok) throw new Error(j.error || 'Request failed');
   return j;
 }
+async function hydrateUser(){ try{ const r=await fetch(`/api/status?user=${USER_ID}`); const j=await r.json(); if(j.user) USER=j.user; }catch{} }
 function showWork(){
   document.title = `${USER.name} Work Dashboard`;
   $('operatorLabel').textContent = `${USER.name} Work Dashboard`;
@@ -60,7 +56,8 @@ async function markDone(){
   });
   await loadNext();
 }
-function init(){
+async function init(){
+  await hydrateUser();
   showWork();
   $('next').onclick = () => loadNext().catch(e => alert(e.message));
   $('copy').onclick = async()=>{

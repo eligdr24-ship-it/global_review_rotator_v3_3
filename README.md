@@ -115,25 +115,15 @@ v3.12: Admin Completed History columns tightened. Link/text/note cells now defau
 - Operator Leaderboard is sorted by completed count in the selected date range.
 - Operator Analytics My Completed History rows are compact one-line rows with double-click full view.
 
-## v3.16.7 Admin upload layout fix
-- Admin dashboard only: Upload New Excel now uses a clean two-line layout.
-- File + version inputs are on the first line.
-- Upload/action buttons are below the upload line to prevent overflow.
-- Admin dashboard spacing between cards has been improved for desktop and mobile.
-- No worker, operator analytics, backend, export, history, password, or upload logic changes.
+## v3.17 Dynamic Admin Users
 
-## v3.16.8 Admin Export Multi-Sheet Update
+Admin Dashboard now includes a User Management card where the admin can add new operators.
 
-Admin Excel report download now includes these sheets:
+Each new operator automatically gets:
+- A work dashboard at `/worker/operatorX`
+- A password-protected analytics dashboard at `/analytics/operatorX`
+- Weekly goal support
+- Leaderboard, history, and report tracking
+- Operator selector visibility on `/`
 
-- Summary
-- Daily Counter
-- Completed History with full history columns
-- Business Links Used
-- Text List Used
-- Operators
-- Active Business Tabs
-- Historical Business Tabs
-- Upload Archive
-
-No dashboard layout, backend workflow, password, upload, worker, or operator analytics behavior was changed.
+Existing Operator 1–4 users remain unchanged. Worker dashboards remain open/no-password. Analytics dashboards remain password-protected.

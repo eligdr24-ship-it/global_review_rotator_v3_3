@@ -506,43 +506,10 @@
 /* v3.16.5 polished chart + operator compact history */
 .line-chart{height:320px;min-height:300px}.chart-line-glow{stroke-width:5}.chart-label{fill:var(--muted);font-size:11px;font-weight:800}.chart-last circle{fill:#22c55e;stroke:white;stroke-width:3}.chart-last text{fill:var(--text);font-size:13px;font-weight:900}.premium-page #history .table-wrap{max-height:62vh;overflow:auto}.premium-page #history .table th,.premium-page #history .table td{white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;height:38px;max-height:38px;padding:7px 9px}.premium-page #history .table td:nth-child(4),.premium-page #history .table td:nth-child(5),.premium-page #history .table td:nth-child(6){max-width:190px}.premium-page #history .history-lock-field{display:block;max-width:100%;min-height:24px}.premium-page #history .history-lock-field input{height:28px!important;min-height:28px!important;padding:5px 8px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.premium-page #history .compact-cell,.premium-page #history .compact-link,.premium-page #history .preview-cell{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;line-height:22px!important}.premium-page #history .history-lock-field.is-locked input{display:none!important}.premium-page #history .history-lock-field.is-editing .compact-cell,.premium-page #history .history-lock-field.is-editing .compact-link,.premium-page #history .history-lock-field.is-editing .muted-inline{display:none!important}.premium-page #history .history-lock-field.is-editing input{display:block!important;width:100%!important}
 @media(max-width:760px){.line-chart{height:240px;min-height:220px}.premium-page #history .table th,.premium-page #history .table td{font-size:11px!important;padding:5px 6px!important;height:32px;max-height:32px}.premium-page #history .table td:nth-child(4),.premium-page #history .table td:nth-child(5),.premium-page #history .table td:nth-child(6){max-width:140px}}
-
-/* v3.16.6 admin-only layout update */
-.upload-single-row-panel .upload-inline-row{display:grid;grid-template-columns:minmax(180px,1.2fr) minmax(180px,1fr) repeat(5,auto);gap:10px;align-items:center}
-.upload-single-row-panel .upload-inline-row .btn{white-space:nowrap;padding:10px 12px;font-size:13px;border-radius:13px}
-.upload-single-row-panel .upload-inline-row .input{min-width:0;padding:10px 12px}
-.upload-help{margin:10px 0 0}.admin-stats-row{margin-bottom:18px}.performance-overview-panel,.weekly-goals-panel,.operator-leaderboard-panel,.business-tab-panel,.historical-business-panel,.upload-archive-panel{margin-bottom:18px}.performance-overview-panel .performance-chart{min-height:330px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.14));padding:10px;overflow:hidden}[data-theme="dark"] .performance-overview-panel .performance-chart{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025))}.multi-operator-chart{height:330px;width:100%;display:block}.operator-chart-line{fill:none;stroke-width:3.8;stroke-linecap:round;stroke-linejoin:round;filter:url(#softGlow);opacity:.94}.operator-chart-dot{stroke:#fff;stroke-width:2}.admin-total-area{fill:url(#adminChartFill)}.admin-total-line{fill:none;stroke:rgba(15,23,42,.28);stroke-width:2.2;stroke-dasharray:7 7;stroke-linecap:round}[data-theme="dark"] .admin-total-line{stroke:rgba(255,255,255,.28)}.chart-label{fill:var(--muted);font-size:11px;font-weight:800}.y-label{opacity:.78}.chart-legend{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.legend-pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:rgba(255,255,255,.50);border-radius:999px;padding:8px 11px;font-size:12px;font-weight:900;color:var(--muted)}[data-theme="dark"] .legend-pill{background:rgba(255,255,255,.06)}.legend-pill i{width:10px;height:10px;border-radius:999px;display:inline-block}.legend-pill b{color:var(--text)}.legend-pill.total i{background:linear-gradient(90deg,var(--primary),var(--primary2))}.operator-leaderboard-panel .user-cards,.business-tab-panel .source-cards,.historical-business-panel .source-cards,.upload-archive-panel .source-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.operator-leaderboard-panel .user-card,.business-tab-panel .source-card,.historical-business-panel .source-card{min-height:74px}.page #history{margin-bottom:18px}
-@media(max-width:1180px){.upload-single-row-panel .upload-inline-row{grid-template-columns:1fr 1fr}.upload-single-row-panel .upload-inline-row .btn{width:100%}}
-@media(max-width:720px){.upload-single-row-panel .upload-inline-row{grid-template-columns:1fr}.upload-single-row-panel .upload-inline-row .btn,.upload-single-row-panel .upload-inline-row .input{width:100%;font-size:13px}.performance-overview-panel .performance-chart{min-height:260px;padding:6px}.multi-operator-chart{height:260px}.chart-legend{gap:6px}.legend-pill{font-size:11px;padding:7px 9px}.operator-leaderboard-panel .user-cards,.business-tab-panel .source-cards,.historical-business-panel .source-cards,.upload-archive-panel .source-cards{grid-template-columns:1fr}}
-
-
-/* v3.16.7 admin upload + spacing fix only */
-.upload-single-row-panel{overflow:hidden!important;margin-bottom:26px!important}
-.upload-single-row-panel .card-head{align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:18px!important}
-.upload-single-row-panel .card-head h3{margin:0!important;line-height:1.2}
-.upload-single-row-panel .card-head .small{line-height:1.35;color:var(--muted)}
-.upload-file-row{display:grid;grid-template-columns:minmax(220px,0.75fr) minmax(260px,1fr);gap:14px;align-items:center;margin-bottom:14px;width:100%}
-.upload-actions-row{display:grid;grid-template-columns:repeat(5,minmax(140px,1fr));gap:12px;align-items:center;width:100%}
-.upload-file-row .input,.upload-actions-row .btn{min-width:0;width:100%}
-.upload-actions-row .btn{padding:11px 12px!important;font-size:13px!important;border-radius:14px!important;white-space:normal!important;line-height:1.18!important;min-height:46px!important}
-.upload-file-row .input{padding:11px 12px!important;border-radius:14px!important}
-.upload-help{margin:16px 0 0!important;line-height:1.45!important}
-#panel > section,.admin-stats-row,.performance-overview-panel,.weekly-goals-panel,#history,.operator-leaderboard-panel,.business-tab-panel,.historical-business-panel,.upload-archive-panel,#trash{margin-bottom:28px!important}
-#panel > section.panel{scroll-margin-top:18px}
-#panel .panel{overflow:hidden}
-.dashboard-grid,.two-col,.large-left{gap:24px!important}
-@media(max-width:1180px){
-  .upload-file-row{grid-template-columns:1fr 1fr;gap:12px}
-  .upload-actions-row{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-  #panel > section,.admin-stats-row,.performance-overview-panel,.weekly-goals-panel,#history,.operator-leaderboard-panel,.business-tab-panel,.historical-business-panel,.upload-archive-panel,#trash{margin-bottom:24px!important}
-}
-@media(max-width:760px){
-  .upload-single-row-panel{border-radius:20px!important;padding:14px!important;margin-bottom:20px!important}
-  .upload-single-row-panel .card-head{margin-bottom:12px!important}
-  .upload-file-row{grid-template-columns:1fr;gap:10px;margin-bottom:12px}
-  .upload-actions-row{grid-template-columns:1fr;gap:9px}
-  .upload-actions-row .btn{min-height:42px!important;font-size:12.5px!important;padding:10px!important}
-  .upload-help{font-size:12px!important;margin-top:12px!important}
-  #panel > section,.admin-stats-row,.performance-overview-panel,.weekly-goals-panel,#history,.operator-leaderboard-panel,.business-tab-panel,.historical-business-panel,.upload-archive-panel,#trash{margin-bottom:20px!important}
-  .dashboard-grid,.two-col,.large-left{gap:18px!important}
-}
+/* v3.17 Admin user management */
+.user-management-panel{margin-bottom:24px}
+.add-user-row{display:grid;grid-template-columns:minmax(180px,1fr) minmax(160px,1fr) 120px auto;gap:12px;align-items:center;margin-bottom:16px}
+.operator-management-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.operator-manage-card{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--line);background:rgba(255,255,255,.42);border-radius:16px;padding:12px}
+[data-theme="dark"] .operator-manage-card{background:rgba(255,255,255,.04)}
+@media(max-width:760px){.add-user-row{grid-template-columns:1fr}.operator-manage-card{grid-template-columns:42px 1fr}.operator-manage-card .user-card-actions{grid-column:1/-1;justify-content:flex-start}}
