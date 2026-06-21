@@ -196,6 +196,27 @@ function exportXlsx(){
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.uploadArchive||[]),'Upload Archive');
   XLSX.writeFile(wb,`global-review-rotator-report-${new Date().toISOString().slice(0,10)}.xlsx`)
 }
+
+async function adminLogin(){
+  const passInput=$('pass');
+  const btn=$('loginBtn');
+  PASS=(passInput?.value||'').trim();
+  if(!PASS){alert('Enter admin password.');return;}
+  try{
+    if(btn){btn.disabled=true;btn.textContent='Checking...';}
+    const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:PASS})});
+    if(!r.ok){PASS='';alert('Wrong admin password.');return;}
+    $('login')?.classList.add('hidden');
+    $('panel')?.classList.remove('hidden');
+    await refresh();
+  }catch(e){alert(e.message||'Login failed.');}
+  finally{if(btn){btn.disabled=false;btn.textContent='Login';}}
+}
+const loginButton=$('loginBtn');
+if(loginButton) loginButton.onclick=adminLogin;
+const passField=$('pass');
+if(passField) passField.addEventListener('keydown',e=>{if(e.key==='Enter')adminLogin();});
+
 $('uploadBtn').onclick=async()=>{try{const f=$('file').files[0];if(!f)return alert('Choose an Excel file first');const data=await readWorkbook(f);const totalLinks=Object.values(data.linkTabs).reduce((a,b)=>a+b.length,0);if(!confirm(`Replace current data with ${totalLinks} links across ${Object.keys(data.linkTabs).length} tabs and ${data.texts.length} texts?`))return;data.versionName=($('versionNameInput')?.value||f.name||'').trim();data.fileName=f.name;const r=await api('/api/admin/upload',{method:'POST',body:JSON.stringify(data)});renderAll(r.status);alert('Uploaded ✅\nHistory was preserved.')}catch(e){alert(e.message)}};
 $('undo').onclick=async()=>{if(confirm('Undo last completed item?'))renderAll((await api('/api/admin/undo',{method:'POST',body:'{}'})).status)};const ra=$('resetActive');if(ra)ra.onclick=async()=>{if(confirm('Reset only the active pool? History will stay saved.'))renderAll((await api('/api/admin/reset-active',{method:'POST',body:'{}'})).status)};$('resetAll').onclick=async()=>{if(confirm('DANGER: Reset EVERYTHING including history and upload archive?'))renderAll((await api('/api/admin/reset-all',{method:'POST',body:'{}'})).status)};$('exportBtn').onclick=exportXlsx;const shb=$('saveHistoryBtn');if(shb)shb.onclick=saveHistoryChanges;const delb=$('deleteSelectedHistoryBtn');if(delb)delb.onclick=deleteSelectedHistory;const sgb=$('saveGoalsBtn');if(sgb)sgb.onclick=saveWeeklyGoals;const aub=$('addOperatorBtn');if(aub)aub.onclick=addOperator;
 initDates();
