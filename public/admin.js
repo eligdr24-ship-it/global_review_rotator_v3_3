@@ -477,3 +477,34 @@ initDates();
   document.addEventListener('DOMContentLoaded',()=>setTimeout(applyAdminFixes,50));
   setTimeout(applyAdminFixes,300);
 })();
+
+// v3.18.7: robust mobile sidebar close button and overlay behavior
+(function(){
+  function ensureAdminMobileSidebar(){
+    const body=document.body;
+    const root=document.querySelector('.admin-dashboard-page');
+    const btn=document.querySelector('.admin-dashboard-page .mobile-menu');
+    const sidebar=document.querySelector('.admin-dashboard-page .sidebar');
+    if(!root||!btn||!sidebar) return;
+    let close=sidebar.querySelector('.admin-close-menu');
+    if(!close){
+      close=document.createElement('button');
+      close.type='button';
+      close.className='admin-close-menu';
+      close.setAttribute('aria-label','Close admin menu');
+      close.textContent='×';
+      sidebar.appendChild(close);
+    }
+    if(btn.dataset.v3187Wired==='1') return;
+    btn.dataset.v3187Wired='1';
+    btn.addEventListener('click',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      body.classList.add('admin-menu-open');
+    },true);
+    close.addEventListener('click',function(e){e.preventDefault();body.classList.remove('admin-menu-open');});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape') body.classList.remove('admin-menu-open');});
+  }
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(ensureAdminMobileSidebar,80);});
+  setTimeout(ensureAdminMobileSidebar,400);
+})();
