@@ -115,15 +115,11 @@ v3.12: Admin Completed History columns tightened. Link/text/note cells now defau
 - Operator Leaderboard is sorted by completed count in the selected date range.
 - Operator Analytics My Completed History rows are compact one-line rows with double-click full view.
 
-## v3.17 Dynamic Admin Users
-
-Admin Dashboard now includes a User Management card where the admin can add new operators.
-
-Each new operator automatically gets:
-- A work dashboard at `/worker/operatorX`
-- A password-protected analytics dashboard at `/analytics/operatorX`
-- Weekly goal support
-- Leaderboard, history, and report tracking
-- Operator selector visibility on `/`
-
-Existing Operator 1–4 users remain unchanged. Worker dashboards remain open/no-password. Analytics dashboards remain password-protected.
+## v3.17.1 Admin cleanup + export fix
+- Admin Dashboard: Operator Leaderboard moved directly under Date Search.
+- Admin Dashboard: Performance Overview moved under Operator Leaderboard and displays all operator trend lines for the selected date range.
+- Admin Dashboard: Completed History remains high on the page.
+- Admin Dashboard: Current Data Version card removed; current version details now appear at the top of Upload Archive.
+- Admin Dashboard: Lifetime Completed Jobs is shown in the Operator Leaderboard header instead of as a separate card.
+- Admin Dashboard: Recent Activity card removed.
+- Admin Excel report now includes Summary, Daily Counter, Completed History, Submitted Links, Business Links Used, Text List Used, Operators, Active Business Tabs, Historical Business Tabs, and Upload Archive.

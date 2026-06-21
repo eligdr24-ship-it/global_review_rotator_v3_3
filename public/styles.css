@@ -506,10 +506,124 @@
 /* v3.16.5 polished chart + operator compact history */
 .line-chart{height:320px;min-height:300px}.chart-line-glow{stroke-width:5}.chart-label{fill:var(--muted);font-size:11px;font-weight:800}.chart-last circle{fill:#22c55e;stroke:white;stroke-width:3}.chart-last text{fill:var(--text);font-size:13px;font-weight:900}.premium-page #history .table-wrap{max-height:62vh;overflow:auto}.premium-page #history .table th,.premium-page #history .table td{white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;height:38px;max-height:38px;padding:7px 9px}.premium-page #history .table td:nth-child(4),.premium-page #history .table td:nth-child(5),.premium-page #history .table td:nth-child(6){max-width:190px}.premium-page #history .history-lock-field{display:block;max-width:100%;min-height:24px}.premium-page #history .history-lock-field input{height:28px!important;min-height:28px!important;padding:5px 8px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.premium-page #history .compact-cell,.premium-page #history .compact-link,.premium-page #history .preview-cell{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;line-height:22px!important}.premium-page #history .history-lock-field.is-locked input{display:none!important}.premium-page #history .history-lock-field.is-editing .compact-cell,.premium-page #history .history-lock-field.is-editing .compact-link,.premium-page #history .history-lock-field.is-editing .muted-inline{display:none!important}.premium-page #history .history-lock-field.is-editing input{display:block!important;width:100%!important}
 @media(max-width:760px){.line-chart{height:240px;min-height:220px}.premium-page #history .table th,.premium-page #history .table td{font-size:11px!important;padding:5px 6px!important;height:32px;max-height:32px}.premium-page #history .table td:nth-child(4),.premium-page #history .table td:nth-child(5),.premium-page #history .table td:nth-child(6){max-width:140px}}
-/* v3.17 Admin user management */
-.user-management-panel{margin-bottom:24px}
-.add-user-row{display:grid;grid-template-columns:minmax(180px,1fr) minmax(160px,1fr) 120px auto;gap:12px;align-items:center;margin-bottom:16px}
-.operator-management-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
-.operator-manage-card{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--line);background:rgba(255,255,255,.42);border-radius:16px;padding:12px}
-[data-theme="dark"] .operator-manage-card{background:rgba(255,255,255,.04)}
-@media(max-width:760px){.add-user-row{grid-template-columns:1fr}.operator-manage-card{grid-template-columns:42px 1fr}.operator-manage-card .user-card-actions{grid-column:1/-1;justify-content:flex-start}}
+
+/* v3.17.1 Admin cleanup: spacing, archive metadata, and multi-operator chart */
+#panel > .panel,
+#panel > .dashboard-grid,
+#panel > .two-col,
+#panel > .admin-upload-panel{
+  margin-bottom:24px;
+}
+.admin-leaderboard-panel .card-head{
+  align-items:flex-start;
+  flex-wrap:wrap;
+}
+.smallLifetime{
+  white-space:nowrap;
+  font-size:12px;
+}
+.chart-only-layout{
+  display:block!important;
+}
+.performance-overview-panel .performance-chart{
+  width:100%;
+  min-height:330px;
+  padding:4px 0 0;
+}
+.performance-overview-panel .line-chart{
+  width:100%;
+  height:320px;
+  display:block;
+}
+.chart-operator-line{
+  fill:none;
+  stroke-width:4.5;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  filter:drop-shadow(0 4px 8px rgba(15,23,42,.16));
+}
+.chart-operator-dot{
+  stroke:#fff;
+  stroke-width:2.5;
+}
+.chart-axis-label,
+.chart-label{
+  fill:var(--muted);
+  font-size:11px;
+  font-weight:800;
+}
+.chart-total-label{
+  fill:var(--text);
+  font-size:13px;
+  font-weight:900;
+}
+.chart-legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px 16px;
+  margin-top:8px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:850;
+}
+.chart-legend span{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.chart-legend i{width:10px;height:10px;border-radius:999px;display:inline-block;box-shadow:0 0 0 3px rgba(124,58,237,.08)}
+.archive-current-version{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px 14px;
+  align-items:center;
+  margin:0 0 14px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:rgba(255,255,255,.38);
+}
+[data-theme="dark"] .archive-current-version{background:rgba(255,255,255,.05)}
+.admin-upload-panel .drop-zone.admin-upload-grid{
+  display:grid;
+  grid-template-columns:minmax(220px,1.25fr) minmax(180px,.9fr);
+  gap:12px;
+  align-items:center;
+}
+.admin-upload-panel .drop-zone.admin-upload-grid .note{
+  grid-column:1/-1;
+  margin:0;
+}
+.admin-upload-panel .button-row.compact{
+  grid-column:1/-1;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(130px,1fr));
+  gap:10px;
+  margin-top:0;
+}
+.admin-upload-panel .button-row.compact .btn,
+.admin-upload-panel #exportBtn{
+  padding:10px 12px;
+  font-size:13px;
+  border-radius:13px;
+  min-height:42px;
+}
+.admin-upload-panel #exportBtn{
+  grid-column:1/-1;
+  margin-top:0;
+}
+.admin-business-panel,
+.admin-historical-panel{
+  margin-bottom:24px;
+}
+@media(max-width:900px){
+  #panel > .panel,
+  #panel > .dashboard-grid,
+  #panel > .two-col,
+  #panel > .admin-upload-panel{margin-bottom:18px}
+  .admin-upload-panel .drop-zone.admin-upload-grid{grid-template-columns:1fr}
+  .admin-upload-panel .button-row.compact{grid-template-columns:1fr 1fr}
+  .performance-overview-panel .performance-chart{min-height:260px}
+  .performance-overview-panel .line-chart{height:250px;min-height:240px}
+  .smallLifetime{width:100%}
+}
+@media(max-width:560px){
+  .admin-upload-panel .button-row.compact{grid-template-columns:1fr}
+  .chart-legend{font-size:11px;gap:8px 12px}
+}

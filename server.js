@@ -10,49 +10,25 @@ const DB_PATH = path.join(DATA_DIR, 'db.json');
 const SEED_PATH = path.join(DATA_DIR, 'seed.json');
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
-const BASE_OPERATORS = {
-  operator1: { id:'operator1', name:'Operator 1', color:'#7c3aed', env:'OPERATOR1_PASSWORD', isDefault:true },
-  operator2: { id:'operator2', name:'Operator 2', color:'#007aff', env:'OPERATOR2_PASSWORD', isDefault:true },
-  operator3: { id:'operator3', name:'Operator 3', color:'#16a34a', env:'OPERATOR3_PASSWORD', isDefault:true },
-  operator4: { id:'operator4', name:'Operator 4', color:'#f97316', env:'OPERATOR4_PASSWORD', isDefault:true }
+const OPERATORS = {
+  operator1: { id:'operator1', name:'Operator 1', color:'#7c3aed', env:'OPERATOR1_PASSWORD' },
+  operator2: { id:'operator2', name:'Operator 2', color:'#007aff', env:'OPERATOR2_PASSWORD' },
+  operator3: { id:'operator3', name:'Operator 3', color:'#16a34a', env:'OPERATOR3_PASSWORD' },
+  operator4: { id:'operator4', name:'Operator 4', color:'#f97316', env:'OPERATOR4_PASSWORD' }
 };
-const DEFAULT_OPERATOR_GOAL = 50;
-const OPERATOR_COLORS = ['#7c3aed','#007aff','#16a34a','#f97316','#ec4899','#14b8a6','#f59e0b','#6366f1','#ef4444','#22c55e'];
-function normalizeOperatorId(value){ return String(value||'').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,40); }
-function labelFromId(id){ const n=String(id||'').match(/operator(\d+)/i); return n ? `Operator ${n[1]}` : String(id||'Operator'); }
-function normalizeOperators(list=[]){
-  const out=[]; const seen=new Set(Object.keys(BASE_OPERATORS));
-  for(const raw of (Array.isArray(list)?list:[])){
-    const id=normalizeOperatorId(raw.id || raw.userId || raw.name);
-    if(!id || id==='standard' || seen.has(id)) continue;
-    seen.add(id);
-    out.push({ id, name:String(raw.name||labelFromId(id)).trim().slice(0,80)||labelFromId(id), color:String(raw.color||OPERATOR_COLORS[seen.size%OPERATOR_COLORS.length]), password:String(raw.password||id), active: raw.active!==false, createdAt: raw.createdAt||new Date().toISOString() });
-  }
-  return out;
-}
-function operatorMap(db=null){
-  const custom=normalizeOperators(db?.meta?.operators||[]).filter(o=>o.active!==false);
-  return { ...BASE_OPERATORS, ...Object.fromEntries(custom.map(o=>[o.id,o])) };
-}
-function quickOperatorMap(){
-  try { if(fs.existsSync(DB_PATH)){ const db=JSON.parse(fs.readFileSync(DB_PATH,'utf8')); return operatorMap(db); } } catch {}
-  return operatorMap(null);
-}
-function normalizeWeeklyGoals(goals={}, operators=null){
-  const map = operators || quickOperatorMap();
+const DEFAULT_WEEKLY_GOALS = { operator1: 50, operator2: 50, operator3: 50, operator4: 50 };
+function normalizeWeeklyGoals(goals={}){
   const out = {};
-  for (const id of Object.keys(map)) {
+  for (const id of Object.keys(OPERATORS)) {
     const n = Number(goals[id]);
-    out[id] = Number.isFinite(n) && n >= 0 ? Math.round(n) : DEFAULT_OPERATOR_GOAL;
+    out[id] = Number.isFinite(n) && n >= 0 ? Math.round(n) : DEFAULT_WEEKLY_GOALS[id];
   }
   return out;
 }
-function cleanUserId(value){ const id = normalizeOperatorId(value); const map=quickOperatorMap(); return map[id] ? id : (id === 'standard' ? 'standard' : 'operator1'); }
-function operatorPassword(id){ const uid=cleanUserId(id); const u=quickOperatorMap()[uid]; return u?.env ? (process.env[u.env] || uid) : (u?.password || uid); }
+function operatorPassword(id){ const uid=cleanUserId(id); return process.env[OPERATORS[uid]?.env] || uid; }
 function operatorAuthOk(req, id){ const uid=cleanUserId(id); return String(req.headers['x-operator-password'] || '') === String(operatorPassword(uid)); }
-function userInfo(id){ const uid=cleanUserId(id); const u=quickOperatorMap()[uid]; return u ? {id:u.id,name:u.name,color:u.color} : { id:'standard', name:'Simple User', color:'#64748b' }; }
-function publicOperators(db){ return Object.values(operatorMap(db)).filter(u=>u.active!==false).map(u=>({id:u.id,name:u.name,color:u.color,isDefault:!!u.isDefault})); }
-function nextOperatorId(db){ const ids=new Set(publicOperators(db).map(u=>u.id)); let n=1; while(ids.has(`operator${n}`)) n++; return `operator${n}`; }
+function cleanUserId(value){ const id = String(value||'').toLowerCase().replace(/[^a-z0-9_-]/g,''); return OPERATORS[id] ? id : (id === 'standard' ? 'standard' : 'operator1'); }
+function userInfo(id){ const uid=cleanUserId(id); const u=OPERATORS[uid]; return u ? {id:u.id,name:u.name,color:u.color} : { id:'standard', name:'Simple User', color:'#64748b' }; }
 function dayKey(d=new Date()){ return d.toISOString().slice(0,10); }
 function dateOnly(ts){ return String(ts||'').slice(0,10); }
 function recentDays(count=365){ const out=[]; const d=new Date(); for(let i=0;i<count;i++){ const x=new Date(d); x.setUTCDate(d.getUTCDate()-i); out.push(dayKey(x)); } return out; }
@@ -89,7 +65,7 @@ function normalizeData(data){
 function loadSeed(){ try { return normalizeData(JSON.parse(fs.readFileSync(SEED_PATH,'utf8'))); } catch { return {links:[],texts:[]}; } }
 function cleanState(state={}){ return { doneLinks:Array.isArray(state.doneLinks)?state.doneLinks:[], usedTexts:Array.isArray(state.usedTexts)?state.usedTexts:[], history:Array.isArray(state.history)?state.history:[], sourcePtr:Number.isInteger(state.sourcePtr)?state.sourcePtr:0 }; }
 function activeOnlyState(state={}){ return { doneLinks:[], usedTexts:[], history:Array.isArray(state.history)?state.history:[], sourcePtr:0 }; }
-function cleanMeta(meta={}){ const operators=normalizeOperators(meta.operators||[]); return { dataVersion:Number.isInteger(meta.dataVersion)?meta.dataVersion:1, versionName:String(meta.versionName||'Initial Data'), uploadArchive:Array.isArray(meta.uploadArchive)?meta.uploadArchive:[], operators, weeklyGoals: normalizeWeeklyGoals(meta.weeklyGoals || {}, operatorMap({meta:{operators}})) }; }
+function cleanMeta(meta={}){ return { dataVersion:Number.isInteger(meta.dataVersion)?meta.dataVersion:1, versionName:String(meta.versionName||'Initial Data'), uploadArchive:Array.isArray(meta.uploadArchive)?meta.uploadArchive:[], weeklyGoals: normalizeWeeklyGoals(meta.weeklyGoals || {}) }; }
 function defaultDb(){ return { data:loadSeed(), state:cleanState(), meta:cleanMeta({ dataVersion:1, versionName:'Initial Data', uploadArchive:[{version:1, name:'Initial Data', uploadedAt:new Date().toISOString(), linkCount:loadSeed().links.length, textCount:loadSeed().texts.length, sheets:[...new Set(loadSeed().links.map(l=>l.source||'Links'))]}] }), updatedAt:new Date().toISOString() }; }
 function ensureDb(){ fs.mkdirSync(DATA_DIR,{recursive:true}); if(!fs.existsSync(SEED_PATH)){ const bundled=path.join(__dirname,'data','seed.json'); if(bundled!==SEED_PATH && fs.existsSync(bundled)) fs.copyFileSync(bundled, SEED_PATH); } if(!fs.existsSync(DB_PATH)) saveDb(defaultDb()); }
 function migrateDb(db){ db.data = normalizeData(db.data || loadSeed()); db.state = cleanState(db.state || {}); db.meta = cleanMeta(db.meta || {}); return db; }
@@ -134,8 +110,8 @@ function sourceStats(db){
   return sources.map(source=>{ const idxs=db.data.links.map((_,i)=>i).filter(i=>linkAt(db,i).source===source); const completed=idxs.filter(i=>done.has(i)).length; return {source,total:idxs.length,completed,remaining:idxs.length-completed,percent:idxs.length?Math.round(completed/idxs.length*100):0}; });
 }
 function historicalSourceStats(db,count=365,from='',to=''){ const days=selectedDays(count,from,to); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>h.status!=='deleted' && days.includes(h.day)&&h.status==='done'); const map={}; for(const h of hist){ const k=h.source||'Links'; map[k] ||= {source:k, completed:0, submittedLinks:0}; map[k].completed++; if(h.submittedLink) map[k].submittedLinks++; } return Object.values(map).sort((a,b)=>b.completed-a.completed); }
-function userBreakdown(db,count=365,from='',to=''){ const days=selectedDays(count,from,to); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>h.status!=='deleted' && days.includes(h.day)&&h.status==='done'); return publicOperators(db).map(u=>{ const items=hist.filter(h=>h.userId===u.id); return { id:u.id, name:u.name, color:u.color, totalDone:items.length, doneToday:items.filter(h=>h.day===dayKey()).length, linksDone:new Set(items.map(h=>h.linkIdx)).size, textsDone:new Set(items.map(h=>h.textIdx)).size };  }); }
-function weeklyProgress(db){ const days=currentWeekDays(); const goals=normalizeWeeklyGoals(db.meta?.weeklyGoals||{}, operatorMap(db)); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>h.status!=='deleted' && days.includes(h.day)&&h.status==='done'); return publicOperators(db).map(u=>{ const done=hist.filter(h=>h.userId===u.id).length; const goal=goals[u.id]||0; return { id:u.id, name:u.name, color:u.color, done, goal, percent: goal ? Math.min(100, Math.round(done/goal*100)) : 0 }; }); }
+function userBreakdown(db,count=365,from='',to=''){ const days=selectedDays(count,from,to); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>h.status!=='deleted' && days.includes(h.day)&&h.status==='done'); return Object.values(OPERATORS).map(u=>{ const items=hist.filter(h=>h.userId===u.id); return { id:u.id, name:u.name, color:u.color, totalDone:items.length, doneToday:items.filter(h=>h.day===dayKey()).length, linksDone:new Set(items.map(h=>h.linkIdx)).size, textsDone:new Set(items.map(h=>h.textIdx)).size };  }); }
+function weeklyProgress(db){ const days=currentWeekDays(); const goals=normalizeWeeklyGoals(db.meta?.weeklyGoals||{}); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>h.status!=='deleted' && days.includes(h.day)&&h.status==='done'); return Object.values(OPERATORS).map(u=>{ const done=hist.filter(h=>h.userId===u.id).length; const goal=goals[u.id]||0; return { id:u.id, name:u.name, color:u.color, done, goal, percent: goal ? Math.min(100, Math.round(done/goal*100)) : 0 }; }); }
 function nextItem(db){
   const doneSet=new Set(db.state.doneLinks), usedSet=new Set(db.state.usedTexts);
   const linkCandidates=db.data.links.map((_,i)=>i).filter(i=>!doneSet.has(i));
@@ -158,7 +134,6 @@ function nextItem(db){
 function serveStatic(req,res){ let p=req.url.split('?')[0]; if(p==='/')p='/index.html'; if(p==='/admin')p='/admin.html'; if(p.startsWith('/worker/'))p='/worker.html'; if(p==='/analytics'||p.startsWith('/analytics/')||p==='/premium'||p.startsWith('/premium/'))p='/premium.html'; const file=path.normalize(path.join(PUBLIC_DIR,p)); if(!file.startsWith(PUBLIC_DIR))return send(res,403,'Forbidden','text/plain'); if(!fs.existsSync(file))return send(res,404,'Not found','text/plain'); const ext=path.extname(file).toLowerCase(); const type=ext==='.html'?'text/html; charset=utf-8':ext==='.css'?'text/css':ext==='.js'?'application/javascript':'text/plain'; res.writeHead(200,{'Content-Type':type,'Cache-Control':'no-store'}); fs.createReadStream(file).pipe(res); }
 
 const server=http.createServer(async(req,res)=>{ try{ const url=new URL(req.url,`http://${req.headers.host}`);
-  if(url.pathname==='/api/operators') { const db=loadDb(); return send(res,200,{operators:publicOperators(db)}); }
   if(url.pathname==='/api/status') return send(res,200,publicState(loadDb(), url.searchParams.get('user')||''));
   if(url.pathname==='/api/report') { const db=loadDb(); const user=url.searchParams.get('user')||''; if(user && !operatorAuthOk(req,user)) return send(res,401,{error:'Wrong operator password.'}); const from=url.searchParams.get('from')||'', to=url.searchParams.get('to')||''; const rep=report(db, Number(url.searchParams.get('days')||365), user, from, to); const st=publicState(db,user); st.rangeDone=rep.totalDone; const wp=weeklyProgress(db); const userWeekly=user?wp.find(x=>x.id===cleanUserId(user)):null; return send(res,200,{status:{...st, weeklyGoal:userWeekly?.goal||0, weeklyDone:userWeekly?.done||0, weeklyPercent:userWeekly?.percent||0}, report:rep, weekly:userWeekly}); }
   if(url.pathname==='/api/operator/login'&&req.method==='POST'){ const p=await bodyJson(req); const uid=cleanUserId(p.userId); const ok=String(p.password||'')===String(operatorPassword(uid)); return send(res,ok?200:401,{ok,user:userInfo(uid)}); }
@@ -240,27 +215,11 @@ const server=http.createServer(async(req,res)=>{ try{ const url=new URL(req.url,
 
   if(url.pathname==='/api/admin/login'&&req.method==='POST'){ const p=await bodyJson(req); return send(res,p.password===ADMIN_PASSWORD?200:401,{ok:p.password===ADMIN_PASSWORD}); }
   if(url.pathname.startsWith('/api/admin/')){ if(!authOk(req))return send(res,401,{error:'Wrong admin password.'}); const db=loadDb();
-    if(url.pathname==='/api/admin/data'){ const c=url.searchParams.get('days')||365; const from=url.searchParams.get('from')||'', to=url.searchParams.get('to')||''; const user=url.searchParams.get('user')||''; const rep=report(db,c,user,from,to); const st=publicState(db); st.rangeDone=rep.totalDone; return send(res,200,{...st, meta:db.meta, uploadArchive:db.meta?.uploadArchive||[], report:rep, users:userBreakdown(db,c,from,to), sources:sourceStats(db), historicalSources:historicalSourceStats(db,c,from,to), weeklyGoals:normalizeWeeklyGoals(db.meta?.weeklyGoals||{}, operatorMap(db)), weeklyProgress:weeklyProgress(db), operators:publicOperators(db), links:db.data.links, texts:db.data.texts}); }
-    if(url.pathname==='/api/admin/operators'&&req.method==='POST'){
-      const p=await bodyJson(req);
-      db.meta=cleanMeta(db.meta||{});
-      const name=String(p.name||'').trim().slice(0,80);
-      const password=String(p.password||'').trim().slice(0,120);
-      if(!name) return send(res,400,{error:'Operator name is required.'});
-      if(!password) return send(res,400,{error:'Operator password is required.'});
-      const id=nextOperatorId(db);
-      const existing=normalizeOperators(db.meta.operators||[]);
-      const color=OPERATOR_COLORS[(publicOperators(db).length)%OPERATOR_COLORS.length];
-      const op={id,name,color,password,active:true,createdAt:new Date().toISOString()};
-      db.meta.operators=[...existing,op];
-      db.meta.weeklyGoals=normalizeWeeklyGoals({...db.meta.weeklyGoals,[id]:Number(p.goal)||DEFAULT_OPERATOR_GOAL}, operatorMap(db));
-      saveDb(db);
-      return send(res,200,{ok:true,operator:{id:op.id,name:op.name,color:op.color},operators:publicOperators(db),weeklyGoals:db.meta.weeklyGoals,weeklyProgress:weeklyProgress(db)});
-    }
+    if(url.pathname==='/api/admin/data'){ const c=url.searchParams.get('days')||365; const from=url.searchParams.get('from')||'', to=url.searchParams.get('to')||''; const user=url.searchParams.get('user')||''; const rep=report(db,c,user,from,to); const st=publicState(db); st.rangeDone=rep.totalDone; return send(res,200,{...st, meta:db.meta, uploadArchive:db.meta?.uploadArchive||[], report:rep, users:userBreakdown(db,c,from,to), sources:sourceStats(db), historicalSources:historicalSourceStats(db,c,from,to), weeklyGoals:normalizeWeeklyGoals(db.meta?.weeklyGoals||{}), weeklyProgress:weeklyProgress(db), operators:Object.values(OPERATORS).map(u=>({id:u.id,name:u.name,color:u.color})), links:db.data.links, texts:db.data.texts}); }
     if(url.pathname==='/api/admin/weekly-goals'&&req.method==='POST'){
       const p=await bodyJson(req);
       db.meta=cleanMeta(db.meta||{});
-      db.meta.weeklyGoals=normalizeWeeklyGoals(p.goals||{}, operatorMap(db));
+      db.meta.weeklyGoals=normalizeWeeklyGoals(p.goals||{});
       saveDb(db);
       return send(res,200,{ok:true,weeklyGoals:db.meta.weeklyGoals,weeklyProgress:weeklyProgress(db)});
     }

@@ -79,67 +79,87 @@ async function loadTrash(){const el=$('trashRows'); if(!el)return; try{const j=a
 async function restoreHistoryRow(id){if(!id)return; try{await api('/api/admin/history/restore',{method:'POST',body:JSON.stringify({ids:[id]})}); await refresh(); await loadTrash();}catch(e){alert(e.message)}}
 async function saveHistoryChanges(){const byId={};document.querySelectorAll('.submitted-edit,.note-input').forEach(el=>{const id=el.dataset.historyId;if(!id)return;byId[id] ||= {id}; if(el.classList.contains('submitted-edit')) byId[id].submittedLink=el.value; if(el.classList.contains('note-input')) byId[id].adminNote=el.value;});const updates=Object.values(byId);if(!updates.length)return alert('No rows to save.');const btn=$('saveHistoryBtn');try{if(btn){btn.disabled=true;btn.textContent='Saving...'}await api('/api/history/update',{method:'POST',body:JSON.stringify({updates})});if(LAST?.report?.history){for(const u of updates){const row=LAST.report.history.find(h=>String(h.id)===String(u.id));if(row){if(typeof u.submittedLink!=='undefined')row.submittedLink=u.submittedLink;if(typeof u.adminNote!=='undefined')row.adminNote=u.adminNote;}}}markUnsaved(false);applyFilter();if(btn)btn.textContent='Saved ✅';setTimeout(()=>{if(btn)btn.textContent='Save All Changes'},1000);}catch(e){alert(e.message)}finally{if(btn)btn.disabled=false}}
 function applyFilter(){const q=($('searchBox').value||'').toLowerCase().trim(),uf=$('userFilter').value||CURRENT_USER;let rows=LAST?.report?.history||[];if(uf)rows=rows.filter(h=>h.userId===uf);if(q)rows=rows.filter(h=>`${h.link} ${h.text} ${h.day} ${h.userName} ${h.userId} ${h.source} ${h.submittedLink} ${h.adminNote}`.toLowerCase().includes(q));renderHistory(rows)}
-
-
-function renderUserFilterOptions(operators){
-  const sel=$('userFilter'); if(!sel)return;
-  const old=sel.value||CURRENT_USER||'';
-  sel.innerHTML='<option value="">All Operators</option>'+(operators||[]).map(u=>`<option value="${esc(u.id)}">${esc(u.name)}</option>`).join('')+'<option value="standard">Simple User</option>';
-  sel.value=old;
-}
-function renderOperatorManagement(operators){
-  const el=$('operatorManagementList'); if(!el)return;
-  const rows=(operators||[]);
-  el.innerHTML=rows.length?rows.map((u,i)=>`<div class="operator-manage-card"><div class="user-avatar" style="background:${esc(u.color||'#7c3aed')}">${i+1}</div><div><b>${esc(u.name)}</b><p class="small">${esc(u.id)} ${u.isDefault?'• default user':''}</p></div><div class="user-card-actions"><a href="/worker/${esc(u.id)}" target="_blank">Work</a><a href="/analytics/${esc(u.id)}?from=admin" target="_blank">Analytics</a></div></div>`).join(''):'<p class="small">No operators yet.</p>';
-}
-function renderAdminOperatorNav(operators){
-  const old=document.querySelectorAll('.op-open'); if(!old.length)return;
-  const parent=old[0].parentElement; old.forEach(x=>x.remove());
-  const anchor=Array.from(parent.children).find(x=>x.classList&&x.classList.contains('side-section')&&x.textContent.trim()==='Manage') || parent.querySelector('.side-spacer');
-  (operators||[]).forEach((u,i)=>{ const a=document.createElement('a'); a.className='side-link op-open'; a.dataset.user=u.id; a.href=`/analytics/${u.id}?from=admin`; a.target='_blank'; a.rel='noopener'; a.innerHTML=`<span>${i+1}</span>${esc(u.name)} Analytics`; parent.insertBefore(a, anchor); });
-}
-async function addOperator(){
-  const name=$('newOperatorName')?.value.trim()||'';
-  const password=$('newOperatorPassword')?.value.trim()||'';
-  const goal=Number($('newOperatorGoal')?.value)||50;
-  if(!name)return alert('Enter a user name.');
-  if(!password)return alert('Enter an analytics password.');
-  const btn=$('addOperatorBtn');
-  try{
-    if(btn){btn.disabled=true;btn.textContent='Adding...'}
-    const r=await api('/api/admin/operators',{method:'POST',body:JSON.stringify({name,password,goal})});
-    if($('newOperatorName'))$('newOperatorName').value='';
-    if($('newOperatorPassword'))$('newOperatorPassword').value='';
-    if($('newOperatorGoal'))$('newOperatorGoal').value='50';
-    await refresh();
-    alert(`User added: ${r.operator?.name || name}\nWork: /worker/${r.operator?.id}\nAnalytics: /analytics/${r.operator?.id}`);
-  }catch(e){alert(e.message)}finally{if(btn){btn.disabled=false;btn.textContent='Add User'}}
-}
 function drawChart(daily){
-  const svg=$('dailyChart'),rows=(daily||[]).slice(),W=760,H=300,P=34;
+  const svg=$('dailyChart'), rows=(daily||[]).slice(), W=820, H=320, P=42;
   if(!svg)return;
   if(!rows.length){svg.innerHTML='<text x="24" y="46" fill="currentColor">No data yet</text>';return}
-  const max=Math.max(1,...rows.map(d=>d.doneCount||0));
-  const pts=rows.map((d,i)=>{const x=P+(rows.length===1?0:i*(W-P*2)/(rows.length-1));const y=H-P-((d.doneCount||0)/max)*(H-P*2);return{x,y,d}});
-  const line=pts.map((p,i)=>{if(i===0)return`M${p.x.toFixed(1)},${p.y.toFixed(1)}`;const prev=pts[i-1];const cx=(prev.x+p.x)/2;return` C${cx.toFixed(1)},${prev.y.toFixed(1)} ${cx.toFixed(1)},${p.y.toFixed(1)} ${p.x.toFixed(1)},${p.y.toFixed(1)}`}).join('');
-  const area=`${line} L${pts[pts.length-1].x},${H-P} L${pts[0].x},${H-P} Z`;
-  const grid=[0,1,2,3,4].map(i=>{const y=P+i*(H-P*2)/4;return`<line class="chart-grid" x1="${P}" x2="${W-P}" y1="${y}" y2="${y}"/>`}).join('');
-  const step=Math.max(1,Math.ceil(pts.length/8));
-  const labels=pts.filter((_,i)=>i%step===0||i===pts.length-1).map(p=>`<text class="chart-label" x="${p.x}" y="${H-8}" text-anchor="middle">${esc(String(p.d.day||'').slice(5))}</text>`).join('');
-  const dots=pts.filter((_,i)=>i%step===0||i===pts.length-1).map(p=>`<circle class="chart-dot" cx="${p.x}" cy="${p.y}" r="5"><title>${esc(p.d.day)}: ${p.d.doneCount||0}</title></circle>`).join('');
-  const last=pts[pts.length-1];
+  const operators=(LAST?.users||[]).slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+  const history=(LAST?.report?.history||[]).filter(h=>h.status==='done');
+  const dayIndex=Object.fromEntries(rows.map((d,i)=>[d.day,i]));
+  const counts={};
+  operators.forEach(u=>counts[u.id]=Array(rows.length).fill(0));
+  history.forEach(h=>{ if(counts[h.userId] && h.day in dayIndex) counts[h.userId][dayIndex[h.day]]++; });
+  const max=Math.max(1,...operators.flatMap(u=>counts[u.id]||[0]),...rows.map(d=>d.doneCount||0));
+  const xFor=i=>P+(rows.length===1?0:i*(W-P*2)/(rows.length-1));
+  const yFor=v=>H-P-(v/max)*(H-P*2);
+  const smoothPath=vals=>vals.map((v,i)=>({x:xFor(i),y:yFor(v),v})).map((p,i,arr)=>{if(i===0)return`M${p.x.toFixed(1)},${p.y.toFixed(1)}`;const prev=arr[i-1],cx=(prev.x+p.x)/2;return` C${cx.toFixed(1)},${prev.y.toFixed(1)} ${cx.toFixed(1)},${p.y.toFixed(1)} ${p.x.toFixed(1)},${p.y.toFixed(1)}`}).join('');
+  const palette=['#8b5cf6','#007aff','#22c55e','#f97316','#ec4899','#14b8a6','#f43f5e'];
+  const grid=[0,1,2,3,4].map(i=>{const y=P+i*(H-P*2)/4;const label=Math.round(max-(i*max/4));return`<line class="chart-grid" x1="${P}" x2="${W-P}" y1="${y}" y2="${y}"/><text class="chart-axis-label" x="10" y="${y+4}">${label}</text>`}).join('');
+  const step=Math.max(1,Math.ceil(rows.length/8));
+  const labels=rows.map((d,i)=>({d,i})).filter(o=>o.i%step===0||o.i===rows.length-1).map(o=>`<text class="chart-label" x="${xFor(o.i)}" y="${H-10}" text-anchor="middle">${esc(String(o.d.day||'').slice(5))}</text>`).join('');
+  const lines=operators.map((u,idx)=>{const vals=counts[u.id]||[]; if(!vals.some(Boolean)) return ''; const color=palette[idx%palette.length]; const path=smoothPath(vals); const lastIdx=vals.length-1, lx=xFor(lastIdx), ly=yFor(vals[lastIdx]); return `<path class="chart-operator-line" d="${path}" stroke="${color}"/><circle class="chart-operator-dot" cx="${lx}" cy="${ly}" r="5" fill="${color}"><title>${esc(u.name)}: ${vals[lastIdx]||0}</title></circle>`;}).join('');
+  const totalVals=rows.map(d=>d.doneCount||0), areaPath=smoothPath(totalVals);
+  const area=`${areaPath} L${xFor(rows.length-1)},${H-P} L${xFor(0)},${H-P} Z`;
+  const legend=operators.map((u,idx)=>`<span><i style="background:${palette[idx%palette.length]}"></i>${esc(u.name)}</span>`).join('');
+  const total=totalVals.reduce((a,b)=>a+b,0);
   svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  svg.innerHTML=`<defs><linearGradient id="gradLine" x1="0" x2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset=".55" stop-color="#3b82f6"/><stop offset="1" stop-color="#22c55e"/></linearGradient><linearGradient id="gradArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7c3aed" stop-opacity=".26"/><stop offset=".65" stop-color="#3b82f6" stop-opacity=".08"/><stop offset="1" stop-color="#3b82f6" stop-opacity="0"/></linearGradient><filter id="chartGlow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>${grid}<path class="chart-area" d="${area}"/><path class="chart-line chart-line-glow" d="${line}" filter="url(#chartGlow)"/>${dots}${labels}<g class="chart-last"><circle cx="${last.x}" cy="${last.y}" r="7"/><text x="${Math.min(W-60,last.x+12)}" y="${Math.max(24,last.y-10)}">${last.d.doneCount||0}</text></g>`;
+  svg.innerHTML=`<defs><linearGradient id="adminChartArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7c3aed" stop-opacity=".18"/><stop offset="1" stop-color="#3b82f6" stop-opacity="0"/></linearGradient></defs>${grid}<path class="chart-area" d="${area}" fill="url(#adminChartArea)"/>${lines}${labels}<text class="chart-total-label" x="${W-160}" y="26">Total selected range: ${total}</text>`;
+  const legendEl=$('chartLegend'); if(legendEl) legendEl.innerHTML=legend;
 }
-function renderAll(j){LAST=j;fillProgress(j);renderUsers(j.users);renderSources(j.sources);renderHistoricalSources(j.historicalSources);renderUploadArchive(j.uploadArchive);renderWeeklyGoals(j.weeklyProgress,j.weeklyGoals);renderOperatorManagement(j.operators);renderAdminOperatorNav(j.operators);renderUserFilterOptions(j.operators);drawChart(j.report.daily);applyFilter();renderActivity(j.report?.history||[])}
+function renderAll(j){LAST=j;fillProgress(j);renderUsers(j.users);renderSources(j.sources);renderHistoricalSources(j.historicalSources);renderUploadArchive(j.uploadArchive);renderWeeklyGoals(j.weeklyProgress,j.weeklyGoals);drawChart(j.report.daily);applyFilter();renderActivity(j.report?.history||[])}
 async function refresh(){renderAll(await api(`/api/admin/data?${dateParams()}&user=${CURRENT_USER}`))}
 function readWorkbook(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=e=>{try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});const sheetRows=name=>{const ws=wb.Sheets[name];return ws?XLSX.utils.sheet_to_json(ws,{header:1}).map(r=>String(r[0]||'').trim()).filter(Boolean):[]};let texts=sheetRows('Texts');if(!texts.length)texts=sheetRows('Text');const linkTabs={};for(const name of wb.SheetNames){if(name.toLowerCase()==='texts'||name.toLowerCase()==='text')continue;const rows=sheetRows(name).filter(Boolean);if(rows.length)linkTabs[name]=rows;}resolve({texts,linkTabs})}catch(err){reject(err)}};reader.onerror=reject;reader.readAsArrayBuffer(file)})}
 async function saveWeeklyGoals(){const goals={};document.querySelectorAll('.weekly-goal-input').forEach(i=>{goals[i.dataset.user]=Number(i.value)||0});const btn=$('saveGoalsBtn');try{if(btn){btn.disabled=true;btn.textContent='Saving...'}const r=await api('/api/admin/weekly-goals',{method:'POST',body:JSON.stringify({goals})});if(LAST){LAST.weeklyGoals=r.weeklyGoals;LAST.weeklyProgress=r.weeklyProgress;}renderWeeklyGoals(r.weeklyProgress,r.weeklyGoals);if(btn)btn.textContent='Saved ✅';setTimeout(()=>{if(btn)btn.textContent='Save Goals'},900)}catch(e){alert(e.message)}finally{if(btn)btn.disabled=false}}
-function exportXlsx(){if(!LAST)return;const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{dateFrom:$('fromDate')?.value,dateTo:$('toDate')?.value,totalLinks:LAST.totalLinks,linksRemaining:LAST.linksRemaining,totalTexts:LAST.totalTexts,textsRemaining:LAST.textsRemaining,doneInRange:LAST.rangeDone,doneToday:LAST.doneToday,updatedAt:LAST.updatedAt,currentVersion:LAST.currentVersion,versionName:LAST.versionName,lifetimeDone:LAST.lifetimeDone}]),'Summary');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.users||[]),'Operators');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.sources||[]),'Active Business Tabs');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.historicalSources||[]),'Historical Business Tabs');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.uploadArchive||[]),'Upload Archive');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet((LAST.report?.history||[]).map(h=>({Date:h.day,Time:localTime(h.at),Operator:h.userName,UserId:h.userId,BusinessTab:h.source,OriginalLink:h.link,SubmittedLink:h.submittedLink,Text:h.text,Status:h.status,DataVersion:h.dataVersion,VersionName:h.versionName,AdminNote:h.adminNote||''}))), 'History');XLSX.writeFile(wb,`global-review-rotator-report-${new Date().toISOString().slice(0,10)}.xlsx`)}
-$('loginBtn').onclick=async()=>{PASS=$('pass').value;const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:PASS})});if(!r.ok)return alert('Wrong password');$('login').classList.add('hidden');$('panel').classList.remove('hidden');refresh().then(()=>loadTrash()).catch(e=>alert(e.message))};
-$('searchBox').oninput=applyFilter;$('userFilter').onchange=applyFilter;document.querySelectorAll('.op-filter').forEach(a=>a.onclick=e=>{e.preventDefault();CURRENT_USER=a.dataset.user||'';document.querySelectorAll('.op-filter').forEach(x=>x.classList.remove('active'));a.classList.add('active');$('userFilter').value=CURRENT_USER;refresh().catch(err=>alert(err.message));});
+function exportXlsx(){
+  if(!LAST)return;
+  const wb=XLSX.utils.book_new();
+  const history=(LAST.report?.history||[]).map(h=>({
+    Date:h.day,
+    Time:localTime(h.at),
+    DateTime:dateTimeCell(h.at,h.day),
+    Operator:h.userName,
+    UserId:h.userId,
+    BusinessTab:h.source,
+    OriginalLink:h.link,
+    SubmittedLink:h.submittedLink||'',
+    Text:h.text,
+    Status:h.status,
+    DataVersion:h.dataVersion,
+    VersionName:h.versionName,
+    AdminNote:h.adminNote||''
+  }));
+  const submitted=history.filter(h=>String(h.SubmittedLink||'').trim()).map(h=>({
+    DateTime:h.DateTime,
+    Operator:h.Operator,
+    BusinessTab:h.BusinessTab,
+    OriginalLink:h.OriginalLink,
+    SubmittedLink:h.SubmittedLink,
+    Text:h.Text,
+    AdminNote:h.AdminNote,
+    DataVersion:h.DataVersion,
+    VersionName:h.VersionName
+  }));
+  const businessLinks=(LAST.links||[]).map((l,i)=>({
+    Index:i+1,
+    BusinessTab:l.source||l.tab||l.sheet||'Links',
+    Link:l.url||l.link||String(l||''),
+    OriginalIndex: typeof l.originalIndex==='number'?l.originalIndex:''
+  }));
+  const textList=(LAST.texts||[]).map((t,i)=>({Index:i+1, Text:t}));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{dateFrom:$('fromDate')?.value,dateTo:$('toDate')?.value,totalLinks:LAST.totalLinks,linksRemaining:LAST.linksRemaining,totalTexts:LAST.totalTexts,textsRemaining:LAST.textsRemaining,doneInRange:LAST.rangeDone,doneToday:LAST.doneToday,updatedAt:LAST.updatedAt,currentVersion:LAST.currentVersion,versionName:LAST.versionName,lifetimeDone:LAST.lifetimeDone}]),'Summary');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.report?.daily||[]),'Daily Counter');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(history),'Completed History');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(submitted),'Submitted Links');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(businessLinks),'Business Links Used');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(textList),'Text List Used');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet((LAST.users||[]).slice().sort((a,b)=>(b.totalDone||0)-(a.totalDone||0))),'Operators');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.sources||[]),'Active Business Tabs');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.historicalSources||[]),'Historical Business Tabs');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(LAST.uploadArchive||[]),'Upload Archive');
+  XLSX.writeFile(wb,`global-review-rotator-report-${new Date().toISOString().slice(0,10)}.xlsx`)
+}
 $('uploadBtn').onclick=async()=>{try{const f=$('file').files[0];if(!f)return alert('Choose an Excel file first');const data=await readWorkbook(f);const totalLinks=Object.values(data.linkTabs).reduce((a,b)=>a+b.length,0);if(!confirm(`Replace current data with ${totalLinks} links across ${Object.keys(data.linkTabs).length} tabs and ${data.texts.length} texts?`))return;data.versionName=($('versionNameInput')?.value||f.name||'').trim();data.fileName=f.name;const r=await api('/api/admin/upload',{method:'POST',body:JSON.stringify(data)});renderAll(r.status);alert('Uploaded ✅\nHistory was preserved.')}catch(e){alert(e.message)}};
-$('undo').onclick=async()=>{if(confirm('Undo last completed item?'))renderAll((await api('/api/admin/undo',{method:'POST',body:'{}'})).status)};const ra=$('resetActive');if(ra)ra.onclick=async()=>{if(confirm('Reset only the active pool? History will stay saved.'))renderAll((await api('/api/admin/reset-active',{method:'POST',body:'{}'})).status)};$('resetAll').onclick=async()=>{if(confirm('DANGER: Reset EVERYTHING including history and upload archive?'))renderAll((await api('/api/admin/reset-all',{method:'POST',body:'{}'})).status)};$('exportBtn').onclick=exportXlsx;const shb=$('saveHistoryBtn');if(shb)shb.onclick=saveHistoryChanges;const delb=$('deleteSelectedHistoryBtn');if(delb)delb.onclick=deleteSelectedHistory;const sgb=$('saveGoalsBtn');if(sgb)sgb.onclick=saveWeeklyGoals;const aob=$('addOperatorBtn');if(aob)aob.onclick=addOperator;
+$('undo').onclick=async()=>{if(confirm('Undo last completed item?'))renderAll((await api('/api/admin/undo',{method:'POST',body:'{}'})).status)};const ra=$('resetActive');if(ra)ra.onclick=async()=>{if(confirm('Reset only the active pool? History will stay saved.'))renderAll((await api('/api/admin/reset-active',{method:'POST',body:'{}'})).status)};$('resetAll').onclick=async()=>{if(confirm('DANGER: Reset EVERYTHING including history and upload archive?'))renderAll((await api('/api/admin/reset-all',{method:'POST',body:'{}'})).status)};$('exportBtn').onclick=exportXlsx;const shb=$('saveHistoryBtn');if(shb)shb.onclick=saveHistoryChanges;const delb=$('deleteSelectedHistoryBtn');if(delb)delb.onclick=deleteSelectedHistory;const sgb=$('saveGoalsBtn');if(sgb)sgb.onclick=saveWeeklyGoals;
 initDates();
 
 /* v3.9 Excel-style resizable columns for Admin Completed History */

@@ -56,7 +56,3 @@ Size: 1 GB
 The work dashboards are open/no-password for speed.
 The analytics dashboards require the matching operator password.
 The admin dashboard requires the admin password.
-
-## Adding Operators
-
-After deployment, log into `/admin` and use **User Management** to add new operators. Enter a display name, analytics password, and weekly goal. The system will generate the next route automatically, such as `/worker/operator5` and `/analytics/operator5`.
