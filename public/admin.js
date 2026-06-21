@@ -417,3 +417,63 @@ initDates();
   document.addEventListener('DOMContentLoaded',()=>setTimeout(initAdminMockupUI,100));
   setTimeout(initAdminMockupUI,300);
 })();
+
+
+/* v3.18.4 Admin dashboard targeted fixes: mobile menu, user analytics nav, fit fixes */
+(function(){
+  function escLocal(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function getOps(){return ((window.LAST&& (window.LAST.operators||window.LAST.users)) || (typeof LAST!=='undefined' && LAST && (LAST.operators||LAST.users)) || []).slice();}
+  function operatorSort(a,b){
+    const na=Number(String(a.id||'').replace(/\D/g,''));
+    const nb=Number(String(b.id||'').replace(/\D/g,''));
+    if(Number.isFinite(na)&&Number.isFinite(nb)&&na!==nb) return na-nb;
+    return String(a.name||'').localeCompare(String(b.name||''));
+  }
+  function buildAnalyticsNav(ops){
+    const nav=document.querySelector('.admin-nav');
+    if(!nav) return;
+    let section=nav.querySelector('.admin-user-analytics-section');
+    if(!section){
+      section=document.createElement('div');
+      section.className='admin-user-analytics-section';
+      section.innerHTML='<div class="admin-nav-section-title">User Analytics</div><div class="admin-user-analytics-links"></div>';
+      const userLink=[...nav.querySelectorAll('a')].find(a=>(a.textContent||'').toLowerCase().includes('user management'));
+      if(userLink) userLink.insertAdjacentElement('afterend',section); else nav.appendChild(section);
+    }
+    const holder=section.querySelector('.admin-user-analytics-links');
+    holder.innerHTML=(ops||[]).sort(operatorSort).map(u=>`<a class="admin-nav-link admin-analytics-link" href="/analytics/${escLocal(u.id)}?from=admin" target="_blank" rel="noopener"><span>♙</span><b>${escLocal(u.name||u.id)} Analytics</b></a>`).join('');
+  }
+  function wireAdminMobileMenu(){
+    const btn=document.querySelector('.admin-dashboard-page .mobile-menu');
+    const sidebar=document.querySelector('.admin-dashboard-page .sidebar');
+    if(!btn||!sidebar||btn.dataset.mobileWired==='1') return;
+    btn.dataset.mobileWired='1';
+    btn.setAttribute('aria-label','Open admin menu');
+    btn.addEventListener('click',e=>{e.preventDefault();document.body.classList.toggle('admin-menu-open');});
+    document.addEventListener('click',e=>{
+      if(!document.body.classList.contains('admin-menu-open')) return;
+      if(sidebar.contains(e.target)||btn.contains(e.target)) return;
+      document.body.classList.remove('admin-menu-open');
+    });
+    sidebar.addEventListener('click',e=>{ const a=e.target.closest('a'); if(a && window.innerWidth<=980) document.body.classList.remove('admin-menu-open'); });
+  }
+  function applyAdminFixes(){
+    wireAdminMobileMenu();
+    buildAnalyticsNav(getOps());
+    const archive=document.getElementById('uploadArchivePanel');
+    if(archive) archive.classList.add('admin-fit-card');
+    const leaderboard=document.querySelector('.admin-leaderboard-panel');
+    if(leaderboard) leaderboard.classList.add('admin-fit-card');
+    const search=document.querySelector('.date-search-panel');
+    if(search) search.classList.add('admin-fit-card');
+  }
+  window.applyAdminDashboardFixesV3184=applyAdminFixes;
+  const previousRenderAll=window.renderAll || (typeof renderAll==='function'?renderAll:null);
+  if(previousRenderAll && !previousRenderAll.__v3184Wrapped){
+    const wrapped=function(j){const result=previousRenderAll(j); setTimeout(applyAdminFixes,0); return result;};
+    wrapped.__v3184Wrapped=true;
+    try{window.renderAll=wrapped; renderAll=wrapped;}catch{window.renderAll=wrapped;}
+  }
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(applyAdminFixes,50));
+  setTimeout(applyAdminFixes,300);
+})();
