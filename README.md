@@ -123,3 +123,11 @@ v3.12: Admin Completed History columns tightened. Link/text/note cells now defau
 - Admin Dashboard: Lifetime Completed Jobs is shown in the Operator Leaderboard header instead of as a separate card.
 - Admin Dashboard: Recent Activity card removed.
 - Admin Excel report now includes Summary, Daily Counter, Completed History, Submitted Links, Business Links Used, Text List Used, Operators, Active Business Tabs, Historical Business Tabs, and Upload Archive.
+
+## v3.17.2 Admin user management repair
+
+- Restored admin dashboard custom layout/export behavior while keeping dynamic user support.
+- Admin User Management can add new operators.
+- Admin can edit operator display names and optionally set/change analytics passwords.
+- Updated display names appear in Admin, Worker, Operator Analytics, Completed History, and Operator Leaderboard.
+- Worker and Operator Analytics layouts are otherwise unchanged.

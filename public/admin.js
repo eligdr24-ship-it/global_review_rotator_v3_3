@@ -52,6 +52,44 @@ function goBack(fallback='/'){if(document.referrer)history.back();else location.
 function setText(id,v){const e=$(id);if(e)e.textContent=v??'—'}function setWidth(id,p){const e=$(id);if(e)e.style.width=`${Math.max(0,Math.min(100,p))}%`}
 function fillProgress(j){const totalLinks=j.totalLinks||0,totalTexts=j.totalTexts||0,doneLinks=Math.max(totalLinks-(j.linksRemaining||0),0),usedTexts=Math.max(totalTexts-(j.textsRemaining||0),0);const lp=totalLinks?doneLinks/totalLinks*100:0,tp=totalTexts?usedTexts/totalTexts*100:0,overall=(lp+tp)/2;setText('links',totalLinks);setText('linksRemaining',j.linksRemaining);setText('texts',totalTexts);setText('remain',j.textsRemaining);setText('done',j.rangeDone??j.doneToday);setText('overallPct',`${Math.round(overall)}%`);setText('linkProgressText',`${doneLinks} / ${totalLinks}`);setText('textProgressText',`${usedTexts} / ${totalTexts}`);$('overallRing')?.style.setProperty('--p',overall.toFixed(1));$('todayRing')?.style.setProperty('--p',Math.min(100,((j.rangeDone??j.doneToday)||0)*2));setWidth('linkBar',lp);setWidth('textBar',tp);setText('updated',`● Last updated: ${j.updatedAt?new Date(j.updatedAt).toLocaleString():'—'}`);setText('trendChip',$('dateRangeLabel')?.textContent||'This week');setText('currentVersion',`Version ${j.currentVersion||j.meta?.dataVersion||1}`);setText('versionName',j.versionName||j.meta?.versionName||'Initial Data');setText('lifetimeDone',j.lifetimeDone||0)}
 function renderUsers(users){const sorted=(users||[]).slice().sort((a,b)=>(b.totalDone||0)-(a.totalDone||0)||String(a.name||'').localeCompare(String(b.name||'')));$('userCards').innerHTML=sorted.map((u,i)=>`<div class="user-card"><div class="user-avatar" style="background:${esc(u.color)}">${i+1}</div><div><b>${esc(u.name)}</b><p>${u.totalDone||0} selected range • ${u.doneToday||0} today</p><div class="bar"><span style="width:${Math.min(100,(u.totalDone||0)*3)}%"></span></div></div><div class="user-card-actions"><a href="/worker/${esc(u.id)}" target="_blank">Work</a><a href="/analytics/${esc(u.id)}?from=admin" target="_blank">Analytics</a></div></div>`).join('')||'<p class="small">No operators yet.</p>'}
+
+function updateOperatorNavigation(operators){
+  const ops=(operators||[]).slice().sort((a,b)=>Number(String(a.id).replace('operator',''))-Number(String(b.id).replace('operator','')));
+  const side=document.querySelector('.sidebar');
+  const section=[...document.querySelectorAll('.side-section')].find(x=>x.textContent.trim()==='Operators');
+  if(side && section){
+    let n=section.nextElementSibling;
+    while(n && !n.classList.contains('side-section')){ const next=n.nextElementSibling; n.remove(); n=next; }
+    const all=document.createElement('a'); all.className='side-link op-filter active'; all.dataset.user=''; all.href='#'; all.innerHTML='<span>●</span>All Operators';
+    section.insertAdjacentElement('afterend', all);
+    let prev=all;
+    ops.forEach((u,i)=>{ const a=document.createElement('a'); a.className='side-link op-open'; a.dataset.user=u.id; a.href=`/analytics/${u.id}?from=admin`; a.target='_blank'; a.rel='noopener'; a.innerHTML=`<span>${['🟣','🔵','🟢','🟠','🟡','🟤','⚫','⚪'][i%8]}</span>${esc(u.name)} Analytics`; prev.insertAdjacentElement('afterend',a); prev=a; });
+  }
+  const filter=$('userFilter');
+  if(filter){ const current=filter.value; filter.innerHTML='<option value="">All Operators</option>'+ops.map(u=>`<option value="${esc(u.id)}">${esc(u.name)}</option>`).join('')+'<option value="standard">Simple User</option>'; filter.value=current; }
+  document.querySelectorAll('.op-filter').forEach(a=>a.onclick=e=>{e.preventDefault();CURRENT_USER=a.dataset.user||'';refresh().catch(err=>alert(err.message));});
+}
+function renderUserManagement(operators){
+  const el=$('operatorManagementList'); if(!el)return;
+  const ops=(operators||[]).slice().sort((a,b)=>Number(String(a.id).replace('operator',''))-Number(String(b.id).replace('operator','')));
+  el.innerHTML=ops.map(u=>`<div class="operator-manage-row" data-user="${esc(u.id)}"><div><b>${esc(u.id)}</b><small>Work: /worker/${esc(u.id)} • Analytics: /analytics/${esc(u.id)}</small></div><input class="input operator-name-input" value="${esc(u.name)}" placeholder="Display name"><input class="input operator-pass-input" type="text" placeholder="New analytics password (optional)"><button class="btn blue tinyBtn save-operator-btn" type="button">Save</button><a class="btn ghost tinyBtn" href="/worker/${esc(u.id)}" target="_blank">Work</a><a class="btn ghost tinyBtn" href="/analytics/${esc(u.id)}?from=admin" target="_blank">Analytics</a></div>`).join('')||'<p class="small">No operators yet.</p>';
+  el.querySelectorAll('.save-operator-btn').forEach(btn=>btn.onclick=async()=>{
+    const row=btn.closest('.operator-manage-row');
+    const id=row.dataset.user;
+    const name=row.querySelector('.operator-name-input').value.trim();
+    const password=row.querySelector('.operator-pass-input').value.trim();
+    try{btn.disabled=true;btn.textContent='Saving...';await api('/api/admin/operators/update',{method:'POST',body:JSON.stringify({id,name,password})});await refresh();}catch(e){alert(e.message)}finally{btn.disabled=false;btn.textContent='Save'}
+  });
+}
+async function addOperator(){
+  const name=$('newOperatorName')?.value.trim()||'';
+  const password=$('newOperatorPassword')?.value.trim()||'';
+  if(!name)return alert('Enter operator display name.');
+  if(!password)return alert('Enter an analytics password for this operator.');
+  const btn=$('addOperatorBtn');
+  try{if(btn){btn.disabled=true;btn.textContent='Adding...'}await api('/api/admin/operators',{method:'POST',body:JSON.stringify({name,password})});if($('newOperatorName'))$('newOperatorName').value='';if($('newOperatorPassword'))$('newOperatorPassword').value='';await refresh();}catch(e){alert(e.message)}finally{if(btn){btn.disabled=false;btn.textContent='Add User'}}
+}
+
 function renderSources(sources){$('sourceCards').innerHTML=(sources||[]).map(s=>`<div class="source-card"><div><b>${esc(s.source)}</b><p>${s.completed} active done • ${s.remaining} remaining • ${s.total} total</p><div class="bar"><span style="width:${s.percent}%"></span></div></div><strong>${s.percent}%</strong></div>`).join('')||'<p class="small">No link tabs yet.</p>'}
 function renderUploadArchive(items){const el=$('uploadArchive');if(!el)return;el.innerHTML=(items||[]).slice().reverse().map(x=>`<div class="archive-item"><b>Version ${esc(x.version)} — ${esc(x.name)}</b><p>${esc(new Date(x.uploadedAt).toLocaleString())} • ${x.linkCount||0} links • ${x.textCount||0} texts • ${(x.sheets||[]).length} tabs</p></div>`).join('')||'<p class="small">No upload archive yet.</p>'}
 function renderHistoricalSources(items){const el=$('historicalSourceCards');if(!el)return;el.innerHTML=(items||[]).map(s=>`<div class="source-card"><div><b>${esc(s.source)}</b><p>${s.completed} done in selected range • ${s.submittedLinks||0} submitted links</p></div><strong>${s.completed}</strong></div>`).join('')||'<p class="small">No historical tab data yet.</p>'}
@@ -106,7 +144,7 @@ function drawChart(daily){
   svg.innerHTML=`<defs><linearGradient id="adminChartArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7c3aed" stop-opacity=".18"/><stop offset="1" stop-color="#3b82f6" stop-opacity="0"/></linearGradient></defs>${grid}<path class="chart-area" d="${area}" fill="url(#adminChartArea)"/>${lines}${labels}<text class="chart-total-label" x="${W-160}" y="26">Total selected range: ${total}</text>`;
   const legendEl=$('chartLegend'); if(legendEl) legendEl.innerHTML=legend;
 }
-function renderAll(j){LAST=j;fillProgress(j);renderUsers(j.users);renderSources(j.sources);renderHistoricalSources(j.historicalSources);renderUploadArchive(j.uploadArchive);renderWeeklyGoals(j.weeklyProgress,j.weeklyGoals);drawChart(j.report.daily);applyFilter();renderActivity(j.report?.history||[])}
+function renderAll(j){LAST=j;updateOperatorNavigation(j.operators||j.users);fillProgress(j);renderUsers(j.users);renderUserManagement(j.operators||j.users);renderSources(j.sources);renderHistoricalSources(j.historicalSources);renderUploadArchive(j.uploadArchive);renderWeeklyGoals(j.weeklyProgress,j.weeklyGoals);drawChart(j.report.daily);applyFilter();renderActivity(j.report?.history||[])}
 async function refresh(){renderAll(await api(`/api/admin/data?${dateParams()}&user=${CURRENT_USER}`))}
 function readWorkbook(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=e=>{try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});const sheetRows=name=>{const ws=wb.Sheets[name];return ws?XLSX.utils.sheet_to_json(ws,{header:1}).map(r=>String(r[0]||'').trim()).filter(Boolean):[]};let texts=sheetRows('Texts');if(!texts.length)texts=sheetRows('Text');const linkTabs={};for(const name of wb.SheetNames){if(name.toLowerCase()==='texts'||name.toLowerCase()==='text')continue;const rows=sheetRows(name).filter(Boolean);if(rows.length)linkTabs[name]=rows;}resolve({texts,linkTabs})}catch(err){reject(err)}};reader.onerror=reject;reader.readAsArrayBuffer(file)})}
 async function saveWeeklyGoals(){const goals={};document.querySelectorAll('.weekly-goal-input').forEach(i=>{goals[i.dataset.user]=Number(i.value)||0});const btn=$('saveGoalsBtn');try{if(btn){btn.disabled=true;btn.textContent='Saving...'}const r=await api('/api/admin/weekly-goals',{method:'POST',body:JSON.stringify({goals})});if(LAST){LAST.weeklyGoals=r.weeklyGoals;LAST.weeklyProgress=r.weeklyProgress;}renderWeeklyGoals(r.weeklyProgress,r.weeklyGoals);if(btn)btn.textContent='Saved ✅';setTimeout(()=>{if(btn)btn.textContent='Save Goals'},900)}catch(e){alert(e.message)}finally{if(btn)btn.disabled=false}}
@@ -159,7 +197,7 @@ function exportXlsx(){
   XLSX.writeFile(wb,`global-review-rotator-report-${new Date().toISOString().slice(0,10)}.xlsx`)
 }
 $('uploadBtn').onclick=async()=>{try{const f=$('file').files[0];if(!f)return alert('Choose an Excel file first');const data=await readWorkbook(f);const totalLinks=Object.values(data.linkTabs).reduce((a,b)=>a+b.length,0);if(!confirm(`Replace current data with ${totalLinks} links across ${Object.keys(data.linkTabs).length} tabs and ${data.texts.length} texts?`))return;data.versionName=($('versionNameInput')?.value||f.name||'').trim();data.fileName=f.name;const r=await api('/api/admin/upload',{method:'POST',body:JSON.stringify(data)});renderAll(r.status);alert('Uploaded ✅\nHistory was preserved.')}catch(e){alert(e.message)}};
-$('undo').onclick=async()=>{if(confirm('Undo last completed item?'))renderAll((await api('/api/admin/undo',{method:'POST',body:'{}'})).status)};const ra=$('resetActive');if(ra)ra.onclick=async()=>{if(confirm('Reset only the active pool? History will stay saved.'))renderAll((await api('/api/admin/reset-active',{method:'POST',body:'{}'})).status)};$('resetAll').onclick=async()=>{if(confirm('DANGER: Reset EVERYTHING including history and upload archive?'))renderAll((await api('/api/admin/reset-all',{method:'POST',body:'{}'})).status)};$('exportBtn').onclick=exportXlsx;const shb=$('saveHistoryBtn');if(shb)shb.onclick=saveHistoryChanges;const delb=$('deleteSelectedHistoryBtn');if(delb)delb.onclick=deleteSelectedHistory;const sgb=$('saveGoalsBtn');if(sgb)sgb.onclick=saveWeeklyGoals;
+$('undo').onclick=async()=>{if(confirm('Undo last completed item?'))renderAll((await api('/api/admin/undo',{method:'POST',body:'{}'})).status)};const ra=$('resetActive');if(ra)ra.onclick=async()=>{if(confirm('Reset only the active pool? History will stay saved.'))renderAll((await api('/api/admin/reset-active',{method:'POST',body:'{}'})).status)};$('resetAll').onclick=async()=>{if(confirm('DANGER: Reset EVERYTHING including history and upload archive?'))renderAll((await api('/api/admin/reset-all',{method:'POST',body:'{}'})).status)};$('exportBtn').onclick=exportXlsx;const shb=$('saveHistoryBtn');if(shb)shb.onclick=saveHistoryChanges;const delb=$('deleteSelectedHistoryBtn');if(delb)delb.onclick=deleteSelectedHistory;const sgb=$('saveGoalsBtn');if(sgb)sgb.onclick=saveWeeklyGoals;const aub=$('addOperatorBtn');if(aub)aub.onclick=addOperator;
 initDates();
 
 /* v3.9 Excel-style resizable columns for Admin Completed History */

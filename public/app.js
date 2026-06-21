@@ -6,9 +6,10 @@ const USERS = {
   operator3: { id:'operator3', name:'Operator 3' },
   operator4: { id:'operator4', name:'Operator 4' }
 };
-function currentUserId(){ const p = location.pathname.split('/').filter(Boolean); return USERS[p[1]] ? p[1] : 'operator1'; }
+function currentUserId(){ const p = location.pathname.split('/').filter(Boolean); const id=String(p[1]||'').toLowerCase().replace(/[^a-z0-9_-]/g,''); return /^operator\d+$/.test(id) ? id : 'operator1'; }
 const USER_ID = currentUserId();
-const USER = USERS[USER_ID];
+let USER = USERS[USER_ID] || { id: USER_ID, name: `Operator ${USER_ID.replace('operator','')||''}`.trim() };
+function setUserName(name){ if(name){ USER.name=name; if($('operatorLabel')) $('operatorLabel').textContent = `${USER.name} Work Dashboard`; document.title = `${USER.name} Work Dashboard`; }}
 async function api(p,opt={}){
   opt.headers = { ...(opt.headers || {}), 'Content-Type':'application/json' };
   const r = await fetch(p,opt);
@@ -36,10 +37,12 @@ function setEmpty(msg){
 async function loadNext(){
   const j = await api(`/api/next?user=${USER_ID}`);
   if(j.completed){
+    if(j.status && j.status.user) setUserName(j.status.user.name);
     setEmpty('All available links or text suggestions have already been marked done. Upload more data or reset progress in admin.');
     return;
   }
   current = j;
+  if(j.status && j.status.user) setUserName(j.status.user.name);
   $('txt').value = j.text;
   $('open').href = j.link;
   $('openTextLink').href = j.link;
