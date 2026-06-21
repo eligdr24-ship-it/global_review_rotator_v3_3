@@ -72,7 +72,29 @@ function updateOperatorNavigation(operators){
 function renderUserManagement(operators){
   const el=$('operatorManagementList'); if(!el)return;
   const ops=(operators||[]).slice().sort((a,b)=>Number(String(a.id).replace('operator',''))-Number(String(b.id).replace('operator','')));
-  el.innerHTML=ops.map(u=>`<div class="operator-manage-row" data-user="${esc(u.id)}"><div><b>${esc(u.id)}</b><small>Work: /worker/${esc(u.id)} • Analytics: /analytics/${esc(u.id)}</small></div><input class="input operator-name-input" value="${esc(u.name)}" placeholder="Display name"><input class="input operator-pass-input" type="text" placeholder="New analytics password (optional)"><button class="btn blue tinyBtn save-operator-btn" type="button">Save</button><a class="btn ghost tinyBtn" href="/worker/${esc(u.id)}" target="_blank">Work</a><a class="btn ghost tinyBtn" href="/analytics/${esc(u.id)}?from=admin" target="_blank">Analytics</a></div>`).join('')||'<p class="small">No operators yet.</p>';
+  setText('operatorCountLabel', `${ops.length} Operators`);
+  el.innerHTML=ops.map(u=>`<div class="operator-manage-row compact-user-row" data-user="${esc(u.id)}">
+    <div class="operator-view-line">
+      <div><b>${esc(u.name)}</b><small>${esc(u.id)} • Work: /worker/${esc(u.id)} • Analytics: /analytics/${esc(u.id)}</small></div>
+      <div class="operator-row-actions"><button class="btn ghost tinyBtn edit-operator-btn" type="button">Edit</button><a class="btn ghost tinyBtn" href="/worker/${esc(u.id)}" target="_blank">Work</a><a class="btn ghost tinyBtn" href="/analytics/${esc(u.id)}?from=admin" target="_blank">Analytics</a><button class="btn red tinyBtn delete-operator-btn" type="button">Delete</button></div>
+    </div>
+    <div class="operator-edit-line hidden">
+      <input class="input operator-name-input" value="${esc(u.name)}" placeholder="Display name">
+      <input class="input operator-pass-input" type="text" placeholder="New analytics password (optional)">
+      <button class="btn blue tinyBtn save-operator-btn" type="button">Save</button>
+      <button class="btn ghost tinyBtn cancel-operator-btn" type="button">Cancel</button>
+    </div>
+  </div>`).join('')||'<p class="small">No operators yet.</p>';
+  el.querySelectorAll('.edit-operator-btn').forEach(btn=>btn.onclick=()=>{
+    const row=btn.closest('.operator-manage-row');
+    row.querySelector('.operator-edit-line')?.classList.remove('hidden');
+    row.querySelector('.operator-view-line')?.classList.add('is-editing-row');
+  });
+  el.querySelectorAll('.cancel-operator-btn').forEach(btn=>btn.onclick=()=>{
+    const row=btn.closest('.operator-manage-row');
+    row.querySelector('.operator-edit-line')?.classList.add('hidden');
+    row.querySelector('.operator-view-line')?.classList.remove('is-editing-row');
+  });
   el.querySelectorAll('.save-operator-btn').forEach(btn=>btn.onclick=async()=>{
     const row=btn.closest('.operator-manage-row');
     const id=row.dataset.user;
@@ -80,6 +102,21 @@ function renderUserManagement(operators){
     const password=row.querySelector('.operator-pass-input').value.trim();
     try{btn.disabled=true;btn.textContent='Saving...';await api('/api/admin/operators/update',{method:'POST',body:JSON.stringify({id,name,password})});await refresh();}catch(e){alert(e.message)}finally{btn.disabled=false;btn.textContent='Save'}
   });
+  el.querySelectorAll('.delete-operator-btn').forEach(btn=>btn.onclick=async()=>{
+    const row=btn.closest('.operator-manage-row');
+    const id=row.dataset.user;
+    const name=row.querySelector('.operator-view-line b')?.textContent||id;
+    if(!confirm(`Delete ${name}? History stays saved, but this user will be removed from active dashboards.`)) return;
+    try{btn.disabled=true;btn.textContent='Deleting...';await api('/api/admin/operators/delete',{method:'POST',body:JSON.stringify({id})});await refresh();}catch(e){alert(e.message)}finally{btn.disabled=false;btn.textContent='Delete'}
+  });
+}
+
+function openUserManagement(){ $('userManagementModal')?.classList.remove('hidden'); }
+function closeUserManagement(){ $('userManagementModal')?.classList.add('hidden'); }
+function toggleArchiveList(){
+  const list=$('uploadArchive'), btn=$('toggleArchiveBtn'); if(!list)return;
+  const closed=list.classList.toggle('archive-list-collapsed');
+  if(btn) btn.textContent=closed?'View Archive':'Hide Archive';
 }
 async function addOperator(){
   const name=$('newOperatorName')?.value.trim()||'';
@@ -218,7 +255,7 @@ const passField=$('pass');
 if(passField) passField.addEventListener('keydown',e=>{if(e.key==='Enter')adminLogin();});
 
 $('uploadBtn').onclick=async()=>{try{const f=$('file').files[0];if(!f)return alert('Choose an Excel file first');const data=await readWorkbook(f);const totalLinks=Object.values(data.linkTabs).reduce((a,b)=>a+b.length,0);if(!confirm(`Replace current data with ${totalLinks} links across ${Object.keys(data.linkTabs).length} tabs and ${data.texts.length} texts?`))return;data.versionName=($('versionNameInput')?.value||f.name||'').trim();data.fileName=f.name;const r=await api('/api/admin/upload',{method:'POST',body:JSON.stringify(data)});renderAll(r.status);alert('Uploaded ✅\nHistory was preserved.')}catch(e){alert(e.message)}};
-$('undo').onclick=async()=>{if(confirm('Undo last completed item?'))renderAll((await api('/api/admin/undo',{method:'POST',body:'{}'})).status)};const ra=$('resetActive');if(ra)ra.onclick=async()=>{if(confirm('Reset only the active pool? History will stay saved.'))renderAll((await api('/api/admin/reset-active',{method:'POST',body:'{}'})).status)};$('resetAll').onclick=async()=>{if(confirm('DANGER: Reset EVERYTHING including history and upload archive?'))renderAll((await api('/api/admin/reset-all',{method:'POST',body:'{}'})).status)};$('exportBtn').onclick=exportXlsx;const shb=$('saveHistoryBtn');if(shb)shb.onclick=saveHistoryChanges;const delb=$('deleteSelectedHistoryBtn');if(delb)delb.onclick=deleteSelectedHistory;const sgb=$('saveGoalsBtn');if(sgb)sgb.onclick=saveWeeklyGoals;const aub=$('addOperatorBtn');if(aub)aub.onclick=addOperator;
+$('undo').onclick=async()=>{if(confirm('Undo last completed item?'))renderAll((await api('/api/admin/undo',{method:'POST',body:'{}'})).status)};const ra=$('resetActive');if(ra)ra.onclick=async()=>{if(confirm('Reset only the active pool? History will stay saved.'))renderAll((await api('/api/admin/reset-active',{method:'POST',body:'{}'})).status)};$('resetAll').onclick=async()=>{if(confirm('DANGER: Reset EVERYTHING including history and upload archive?'))renderAll((await api('/api/admin/reset-all',{method:'POST',body:'{}'})).status)};$('exportBtn').onclick=exportXlsx;const shb=$('saveHistoryBtn');if(shb)shb.onclick=saveHistoryChanges;const delb=$('deleteSelectedHistoryBtn');if(delb)delb.onclick=deleteSelectedHistory;const sgb=$('saveGoalsBtn');if(sgb)sgb.onclick=saveWeeklyGoals;const aub=$('addOperatorBtn');if(aub)aub.onclick=addOperator;const oum=$('openUserManagementBtn');if(oum)oum.onclick=openUserManagement;const cum=$('closeUserManagementBtn');if(cum)cum.onclick=closeUserManagement;const umm=$('userManagementModal');if(umm)umm.addEventListener('click',e=>{if(e.target===umm)closeUserManagement();});const tab=$('toggleArchiveBtn');if(tab)tab.onclick=toggleArchiveList;
 initDates();
 
 /* v3.9 Excel-style resizable columns for Admin Completed History */

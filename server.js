@@ -270,6 +270,21 @@ const server=http.createServer(async(req,res)=>{ try{ const url=new URL(req.url,
       saveDb(db);
       return send(res,200,{ok:true,operator:userInfo(id,db),operators:operatorList(db),weeklyGoals:normalizeWeeklyGoals(db.meta.weeklyGoals||{},db),weeklyProgress:weeklyProgress(db)});
     }
+    if(url.pathname==='/api/admin/operators/delete'&&req.method==='POST'){
+      const p=await bodyJson(req);
+      const id=cleanUserId(p.id,db);
+      if(!/^operator\d+$/.test(id)) return send(res,400,{error:'Invalid operator id.'});
+      if(Object.keys(getOperators(db)).length<=1) return send(res,400,{error:'At least one operator must stay active.'});
+      db.meta=cleanMeta(db.meta||{});
+      const current=getOperators(db)[id];
+      if(!current) return send(res,404,{error:'Operator not found.'});
+      const stored=normalizeStoredOperators(db.meta.operators||[]).filter(o=>o.id!==id);
+      stored.push({id,name:current.name||displayNameFromId(id),password:current.password||'',color:current.color||OPERATOR_COLORS[0],enabled:false});
+      db.meta.operators=normalizeStoredOperators(stored);
+      if(db.meta.weeklyGoals) delete db.meta.weeklyGoals[id];
+      saveDb(db);
+      return send(res,200,{ok:true,operators:operatorList(db),weeklyGoals:normalizeWeeklyGoals(db.meta.weeklyGoals||{},db),weeklyProgress:weeklyProgress(db)});
+    }
     if(url.pathname==='/api/admin/weekly-goals'&&req.method==='POST'){
       const p=await bodyJson(req);
       db.meta=cleanMeta(db.meta||{});

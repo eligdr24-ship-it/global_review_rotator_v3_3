@@ -131,3 +131,15 @@ v3.12: Admin Completed History columns tightened. Link/text/note cells now defau
 - Admin can edit operator display names and optionally set/change analytics passwords.
 - Updated display names appear in Admin, Worker, Operator Analytics, Completed History, and Operator Leaderboard.
 - Worker and Operator Analytics layouts are otherwise unchanged.
+
+## v3.18 Admin UI Improvements
+
+Admin dashboard only:
+- User Management is now a compact card that opens a clean management modal.
+- Operators display as simple rows; edit fields open only after clicking Edit.
+- Admin can delete/disable an operator without deleting existing history.
+- Upload New Excel spacing is improved so buttons no longer crowd the card.
+- Upload Archive now shows the current version first and hides the full archive list until View Archive is clicked.
+- Mobile admin cards are more compact for easier scrolling.
+
+No changes were made to worker dashboards, operator analytics logic, export logic, passwords, history saving, or upload processing.
