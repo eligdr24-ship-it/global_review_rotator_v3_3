@@ -143,3 +143,12 @@ Admin dashboard only:
 - Mobile admin cards are more compact for easier scrolling.
 
 No changes were made to worker dashboards, operator analytics logic, export logic, passwords, history saving, or upload processing.
+
+## v3.18.1 Admin visual redesign
+
+- Restyled the Admin Dashboard to match the approved modern mockup.
+- Dark blue sidebar with Global Review Rotator branding.
+- Cleaner white cards, tighter spacing, and improved mobile card density.
+- Completed History stays open in the Admin dashboard.
+- User Management remains a compact card and opens as a modal window.
+- Admin layout remains responsive for desktop and mobile.
