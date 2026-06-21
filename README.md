@@ -157,3 +157,9 @@ No changes were made to worker dashboards, operator analytics logic, export logi
 - Operator Leaderboard no longer shows Work/Analytics buttons.
 - Upload Archive is a compact two-row card with latest version in the header and a View Archive toggle.
 - Admin mobile dashboard fit and side menu behavior preserved.
+
+
+## v3.18.8 Mobile cleanup and analytics links
+- Fixed Performance Overview chart spacing so the bottom legend is visible.
+- Removed the Admin sidebar/menu from mobile dashboard view.
+- Operator Leaderboard rows now open each operator analytics page on desktop and mobile.

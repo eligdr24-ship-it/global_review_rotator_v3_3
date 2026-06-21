@@ -1190,3 +1190,55 @@
   .admin-dashboard-page .date-toolbar{grid-template-columns:1fr!important;}
   .admin-dashboard-page .date-toolbar #applyDateSearch{grid-column:auto!important;}
 }
+
+
+/* v3.18.8 targeted fixes: chart legend visibility, mobile admin without sidebar, clickable leaderboard */
+.admin-dashboard-page .performance-overview-panel{
+  max-height:none!important;
+  min-height:330px!important;
+  overflow:visible!important;
+}
+.admin-dashboard-page .performance-overview-panel .performance-layout,
+.admin-dashboard-page .performance-overview-panel .performance-chart{
+  overflow:visible!important;
+}
+.admin-dashboard-page .performance-overview-panel .line-chart{
+  height:270px!important;
+  min-height:270px!important;
+  margin-bottom:8px!important;
+}
+.admin-dashboard-page .chart-legend{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  gap:7px 14px!important;
+  padding:2px 0 4px!important;
+  margin-top:4px!important;
+  line-height:1.25!important;
+  overflow:visible!important;
+}
+.admin-dashboard-page .chart-legend span{
+  white-space:nowrap!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+}
+.admin-dashboard-page .leaderboard-link-card{
+  color:inherit!important;
+  text-decoration:none!important;
+  cursor:pointer!important;
+}
+.admin-dashboard-page .leaderboard-link-card:hover{
+  transform:translateY(-1px)!important;
+  box-shadow:0 14px 30px rgba(42,54,92,.12)!important;
+}
+@media(max-width:980px){
+  .admin-dashboard-page .mobile-menu{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+  .admin-dashboard-page .sidebar{display:none!important;visibility:hidden!important;pointer-events:none!important;transform:none!important;}
+  .admin-dashboard-page .app-shell{display:block!important;grid-template-columns:1fr!important;}
+  body.admin-menu-open::after{display:none!important;content:none!important;}
+  body.admin-menu-open{overflow:auto!important;}
+  .admin-dashboard-page .performance-overview-panel{min-height:310px!important;}
+  .admin-dashboard-page .performance-overview-panel .line-chart{height:230px!important;min-height:230px!important;}
+  .admin-dashboard-page .chart-legend{font-size:10px!important;gap:6px 10px!important;padding-bottom:6px!important;}
+}
