@@ -310,3 +310,110 @@ initDates();
   document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>window.initAdminHistoryColumnResize&&window.initAdminHistoryColumnResize(),0));
   setTimeout(()=>window.initAdminHistoryColumnResize&&window.initAdminHistoryColumnResize(),200);
 })();
+
+/* v3.18.3 admin mockup behavior: compact action cards + working sidebar */
+(function(){
+  let activeModalPanel=null;
+  function ensureSectionModal(){
+    let m=document.getElementById('adminSectionModal');
+    if(m) return m;
+    m=document.createElement('div');
+    m.id='adminSectionModal';
+    m.className='admin-modal mock-section-modal hidden';
+    m.innerHTML='<div class="admin-modal-box"><div class="admin-modal-head"><div><h3 id="adminSectionModalTitle">Section</h3><p class="small" id="adminSectionModalSub">Manage this section.</p></div><button class="btn ghost tinyBtn" id="adminSectionModalClose" type="button">Close</button></div><div class="mock-modal-body" id="adminSectionModalBody"></div></div>';
+    document.body.appendChild(m);
+    const close=()=>closeSectionModal();
+    document.getElementById('adminSectionModalClose').onclick=close;
+    m.addEventListener('click',e=>{if(e.target===m) close();});
+    return m;
+  }
+  function closeSectionModal(){
+    const m=document.getElementById('adminSectionModal');
+    const body=document.getElementById('adminSectionModalBody');
+    if(activeModalPanel && body){
+      const content=body.querySelector('.mock-hidden-content');
+      if(content) activeModalPanel.appendChild(content);
+    }
+    activeModalPanel=null;
+    if(body) body.innerHTML='';
+    if(m) m.classList.add('hidden');
+  }
+  function openSectionModal(panel,title,sub){
+    const m=ensureSectionModal(), body=document.getElementById('adminSectionModalBody');
+    const content=panel.querySelector('.mock-hidden-content');
+    if(!content) return;
+    if(activeModalPanel && activeModalPanel!==panel) closeSectionModal();
+    activeModalPanel=panel;
+    document.getElementById('adminSectionModalTitle').textContent=title;
+    document.getElementById('adminSectionModalSub').textContent=sub||'';
+    body.appendChild(content);
+    m.classList.remove('hidden');
+  }
+  function compactPanel(selector,buttonText,subtitle){
+    const panel=document.querySelector(selector);
+    if(!panel || panel.dataset.mockReady==='1') return;
+    panel.dataset.mockReady='1';
+    panel.classList.add('mock-action-card');
+    const head=panel.querySelector('.card-head') || panel.firstElementChild;
+    const title=(head?.querySelector('h3')?.textContent||'Section').trim();
+    const content=document.createElement('div');
+    content.className='mock-hidden-content';
+    // Move header action buttons into the modal content so compact cards stay clean.
+    if(head){ [...head.querySelectorAll('button, .btn')].forEach(b=>content.appendChild(b)); }
+    const toMove=[];
+    [...panel.childNodes].forEach(n=>{if(n!==head) toMove.push(n);});
+    toMove.forEach(n=>content.appendChild(n));
+    panel.appendChild(content);
+    const body=document.createElement('div');
+    body.className='mock-card-body';
+    body.innerHTML=`<p>${subtitle||'Open and manage this section.'}</p><button class="btn ghost smallBtn" type="button">${buttonText}</button>`;
+    panel.appendChild(body);
+    body.querySelector('button').onclick=()=>openSectionModal(panel,title,subtitle||'');
+  }
+  function initAdminMockupUI(){
+    // Make sidebar links reliable: scroll to section, open management modal where needed.
+    document.querySelectorAll('.admin-nav-link').forEach(link=>{
+      link.addEventListener('click',e=>{
+        const href=link.getAttribute('href')||'';
+        const label=(link.textContent||'').toLowerCase();
+        if(label.includes('users')){e.preventDefault();document.getElementById('openUserManagementBtn')?.click();return;}
+        let target=null;
+        if(href.startsWith('#')) target=document.querySelector(href);
+        else if(href.startsWith('.')) target=document.querySelector(href);
+        if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.admin-nav-link').forEach(a=>a.classList.remove('active'));link.classList.add('active');}
+      });
+    });
+    // Compact lower dashboard cards to match approved mockup.
+    compactPanel('#weeklyGoals','View Goals','Set and manage weekly goals.');
+    compactPanel('#businessTabs','View Analytics','Analytics and statistics.');
+    compactPanel('#historicalBusiness','View Data','View historical business data.');
+    compactPanel('#upload','Open Upload','Upload and manage Excel files.');
+    compactPanel('#trash','Open Trash','Deleted items and old data.');
+    // Upload archive keeps current version visible in the card, archive list opens in modal.
+    const archive=document.getElementById('uploadArchivePanel');
+    if(archive && archive.dataset.mockArchiveReady!=='1'){
+      archive.dataset.mockArchiveReady='1';
+      archive.classList.add('mock-action-card');
+      const list=document.getElementById('uploadArchive');
+      if(list){
+        const content=document.createElement('div'); content.className='mock-hidden-content'; content.appendChild(list); archive.appendChild(content);
+        const oldBtn=document.getElementById('toggleArchiveBtn'); if(oldBtn) oldBtn.remove();
+        const body=document.createElement('div'); body.className='mock-card-body';
+        body.innerHTML='<p>Click to see the full upload history.</p><button class="btn ghost smallBtn" type="button">View Archive</button>';
+        archive.appendChild(body);
+        body.querySelector('button').onclick=()=>openSectionModal(archive,'🗂 Upload Archive','Full archive upload list.');
+      }
+    }
+    // Ensure user management stays compact and opens popup.
+    const userCard=document.getElementById('userManagement');
+    if(userCard){userCard.classList.add('mock-action-card');}
+  }
+  window.initAdminMockupUI=initAdminMockupUI;
+  const oldRenderAll = (typeof renderAll==='function') ? renderAll : null;
+  if(oldRenderAll){
+    window.renderAll=function(j){const r=oldRenderAll(j); setTimeout(initAdminMockupUI,0); return r;};
+    try{renderAll=window.renderAll;}catch{}
+  }
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(initAdminMockupUI,100));
+  setTimeout(initAdminMockupUI,300);
+})();
