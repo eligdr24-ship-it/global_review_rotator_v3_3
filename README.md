@@ -153,10 +153,7 @@ No changes were made to worker dashboards, operator analytics logic, export logi
 - User Management remains a compact card and opens as a modal window.
 - Admin layout remains responsive for desktop and mobile.
 
-
-## v3.18.4 Admin dashboard fixes
-- Added working mobile hamburger menu for Admin dashboard.
-- Added user analytics links to the Admin side menu.
-- Fixed Date Search, Operator Leaderboard, and Upload Archive card fit.
-- Kept Operator Analytics mobile title horizontal.
-- No other functionality changed.
+## v3.18.5 Admin cleanup
+- Operator Leaderboard no longer shows Work/Analytics buttons.
+- Upload Archive is a compact two-row card with latest version in the header and a View Archive toggle.
+- Admin mobile dashboard fit and side menu behavior preserved.

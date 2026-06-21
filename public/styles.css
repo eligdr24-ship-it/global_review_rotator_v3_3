@@ -952,3 +952,60 @@
   .admin-dashboard-page .smallLifetime{font-size:11px!important;padding:6px 8px!important}
 }
 @media(min-width:981px){.admin-dashboard-page .mobile-menu{display:none!important}}
+
+
+/* v3.18.5 Admin cleanup: compact leaderboard and archive card */
+.admin-dashboard-page .admin-leaderboard-panel .user-card.leaderboard-compact-row{
+  display:grid!important;
+  grid-template-columns:42px minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:10px!important;
+  min-height:56px!important;
+  padding:10px 12px!important;
+}
+.admin-dashboard-page .admin-leaderboard-panel .leaderboard-count{
+  font-size:18px!important;
+  font-weight:950!important;
+  color:#4F46E5!important;
+  white-space:nowrap!important;
+}
+.admin-dashboard-page .admin-leaderboard-panel .user-card-actions{display:none!important}
+.admin-dashboard-page .admin-leaderboard-panel .bar{display:none!important}
+.admin-dashboard-page .upload-archive-panel .card-head h3{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  flex-wrap:wrap!important;
+  margin:0!important;
+}
+.admin-dashboard-page .archive-last-version{
+  font-size:12px!important;
+  font-weight:850!important;
+  color:#4F46E5!important;
+  background:#EEF3FF!important;
+  border:1px solid #DDE6FF!important;
+  border-radius:999px!important;
+  padding:5px 9px!important;
+  white-space:nowrap!important;
+}
+.admin-dashboard-page .archive-compact-body{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  background:#F8FBFF!important;
+  border:1px solid #DCEAFF!important;
+  border-radius:14px!important;
+  padding:10px 12px!important;
+}
+.admin-dashboard-page .archive-compact-body p{margin:0!important;line-height:1.25!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.admin-dashboard-page .archive-current-version{display:none!important}
+.admin-dashboard-page .upload-archive-panel .source-cards:not(.archive-list-collapsed){margin-top:10px!important;max-height:260px!important;overflow:auto!important}
+@media(max-width:980px){
+  .admin-dashboard-page .admin-leaderboard-panel .user-card.leaderboard-compact-row{grid-template-columns:34px minmax(0,1fr) auto!important;min-height:50px!important;padding:9px 10px!important}
+  .admin-dashboard-page .admin-leaderboard-panel .leaderboard-count{font-size:15px!important}
+  .admin-dashboard-page .archive-last-version{font-size:10.5px!important;white-space:normal!important;line-height:1.2!important}
+  .admin-dashboard-page .archive-compact-body{align-items:stretch!important;flex-direction:column!important;gap:8px!important;padding:9px!important}
+  .admin-dashboard-page .archive-compact-body p{white-space:normal!important;font-size:11px!important}
+  .admin-dashboard-page .archive-compact-body .btn{width:100%!important;padding:9px!important;font-size:12px!important}
+}
