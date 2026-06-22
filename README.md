@@ -168,3 +168,8 @@ No changes were made to worker dashboards, operator analytics logic, export logi
 - Aligns the Archive card with Upload New Excel and Trash in the same row.
 - Keeps the Archive card compact with only the View Archive action visible.
 - No other dashboard functionality changed.
+
+
+## v3.19.4 Mobile Date Search Button Order
+- Mobile Admin Dashboard Date Search card only: Apply Search is a full-width row, This Week and Today share one row, Last 7 Days stays full width.
+- Desktop and all other features unchanged.
