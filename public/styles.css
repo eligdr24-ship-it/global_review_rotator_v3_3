@@ -1564,3 +1564,95 @@
     grid-column:span 2!important;
   }
 }
+
+/* v3.19.3 — FINAL mobile Admin Date Search card fix ONLY */
+@media (max-width: 760px){
+  .admin-dashboard-page .date-search-panel{
+    padding:16px 14px!important;
+    margin:0 0 12px!important;
+    border-radius:18px!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+  }
+  .admin-dashboard-page .date-search-panel .card-head{
+    display:none!important;
+  }
+  .admin-dashboard-page .date-toolbar,
+  .admin-dashboard-page .date-search-panel .date-toolbar{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:10px 12px!important;
+    align-items:stretch!important;
+    justify-content:stretch!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:visible!important;
+  }
+  .admin-dashboard-page .date-toolbar:before,
+  .admin-dashboard-page .date-toolbar:after,
+  .admin-dashboard-page .date-toolbar label:before,
+  .admin-dashboard-page .date-toolbar label:after{
+    display:none!important;
+    content:none!important;
+  }
+  .admin-dashboard-page .date-toolbar label{
+    grid-column:auto!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    display:flex!important;
+    flex-direction:column!important;
+    gap:7px!important;
+    margin:0!important;
+    padding:0!important;
+    font-size:13px!important;
+    line-height:1.05!important;
+    color:#65718A!important;
+    font-weight:900!important;
+    text-align:left!important;
+  }
+  .admin-dashboard-page .date-toolbar input,
+  .admin-dashboard-page .date-toolbar .input{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    height:40px!important;
+    min-height:40px!important;
+    padding:8px 10px!important;
+    border-radius:12px!important;
+    font-size:13px!important;
+    line-height:1!important;
+    text-align:center!important;
+    box-sizing:border-box!important;
+  }
+  .admin-dashboard-page #applyDateSearch{
+    grid-column:1 / -1!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:42px!important;
+    min-height:42px!important;
+    padding:10px 12px!important;
+    border-radius:13px!important;
+    font-size:13px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+  }
+  .admin-dashboard-page .date-toolbar .btn[data-range]{
+    grid-column:auto!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    height:38px!important;
+    min-height:38px!important;
+    padding:8px 10px!important;
+    border-radius:12px!important;
+    font-size:12px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+  .admin-dashboard-page .date-toolbar .btn[data-range="7"]{
+    grid-column:1 / -1!important;
+  }
+}
