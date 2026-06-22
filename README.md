@@ -170,6 +170,8 @@ No changes were made to worker dashboards, operator analytics logic, export logi
 - No other dashboard functionality changed.
 
 
-## v3.19.4 Mobile Date Search Button Order
-- Mobile Admin Dashboard Date Search card only: Apply Search is a full-width row, This Week and Today share one row, Last 7 Days stays full width.
-- Desktop and all other features unchanged.
+## v3.19.5 Mobile Search Card Final Adjustments
+- Updated only the mobile Admin Dashboard date search card.
+- Apply Search is full-width, This Week and Today share one row, Last 7 Days remains full-width.
+- Date fields are balanced to match the quick-filter button sizing.
+- Desktop and all other dashboard sections remain unchanged.
