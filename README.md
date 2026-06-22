@@ -163,3 +163,8 @@ No changes were made to worker dashboards, operator analytics logic, export logi
 - Fixed Performance Overview chart spacing so the bottom legend is visible.
 - Removed the Admin sidebar/menu from mobile dashboard view.
 - Operator Leaderboard rows now open each operator analytics page on desktop and mobile.
+
+## v3.19.1 Archive card alignment
+- Aligns the Archive card with Upload New Excel and Trash in the same row.
+- Keeps the Archive card compact with only the View Archive action visible.
+- No other dashboard functionality changed.
