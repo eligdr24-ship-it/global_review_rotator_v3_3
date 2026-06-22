@@ -1338,3 +1338,98 @@
     min-height:190px!important;
   }
 }
+
+/* v3.19.0 leaderboard final polish: no outer frame, compact clickable rows, wider chart */
+.admin-dashboard-page .admin-leaderboard-panel{
+  grid-column:1/5!important;
+  min-height:255px!important;
+  height:auto!important;
+}
+.admin-dashboard-page .performance-overview-panel{
+  grid-column:5/13!important;
+  min-height:255px!important;
+  height:auto!important;
+}
+.admin-dashboard-page .admin-leaderboard-panel .user-cards.compact-list,
+.admin-dashboard-page #userCards{
+  border:0!important;
+  background:transparent!important;
+  border-radius:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  max-height:218px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:8px!important;
+  padding:0!important;
+}
+.admin-dashboard-page #userCards::-webkit-scrollbar{width:6px!important}
+.admin-dashboard-page #userCards::-webkit-scrollbar-thumb{background:#d8e0ee!important;border-radius:999px!important}
+.admin-dashboard-page #userCards > .user-card,
+.admin-dashboard-page #userCards > .leaderboard-link-card{
+  display:grid!important;
+  grid-template-columns:28px minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:9px!important;
+  padding:8px 9px!important;
+  min-height:42px!important;
+  border:1px solid #e7edf6!important;
+  border-radius:12px!important;
+  background:#fff!important;
+  box-shadow:0 3px 10px rgba(15,23,42,.035)!important;
+  text-decoration:none!important;
+  margin:0!important;
+}
+.admin-dashboard-page #userCards > .user-card:hover,
+.admin-dashboard-page #userCards > .leaderboard-link-card:hover{
+  transform:translateY(-1px)!important;
+  box-shadow:0 8px 18px rgba(15,23,42,.07)!important;
+}
+.admin-dashboard-page #userCards .user-avatar{
+  width:23px!important;
+  height:23px!important;
+  font-size:11px!important;
+}
+.admin-dashboard-page #userCards .user-card b,
+.admin-dashboard-page #userCards .leaderboard-link-card b{
+  font-size:12px!important;
+  line-height:1.1!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.admin-dashboard-page #userCards .user-card p,
+.admin-dashboard-page #userCards .leaderboard-link-card p{
+  font-size:9.5px!important;
+  line-height:1.15!important;
+  margin:2px 0 0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.admin-dashboard-page #userCards .leaderboard-count{
+  font-size:14px!important;
+  font-weight:950!important;
+  color:#111827!important;
+}
+.admin-dashboard-page .performance-overview-panel .line-chart{
+  height:210px!important;
+  min-height:210px!important;
+}
+.admin-dashboard-page .performance-overview-panel .chart-legend{
+  margin-top:0!important;
+  padding-bottom:0!important;
+}
+@media(max-width:1180px){
+  .admin-dashboard-page .admin-leaderboard-panel,
+  .admin-dashboard-page .performance-overview-panel{grid-column:1/-1!important}
+  .admin-dashboard-page #userCards{max-height:none!important;overflow:visible!important}
+}
+@media(max-width:760px){
+  .admin-dashboard-page .admin-leaderboard-panel,
+  .admin-dashboard-page .performance-overview-panel{grid-column:1/-1!important}
+  .admin-dashboard-page #userCards{max-height:none!important;overflow:visible!important;gap:7px!important}
+  .admin-dashboard-page #userCards > .user-card,
+  .admin-dashboard-page #userCards > .leaderboard-link-card{min-height:40px!important;padding:7px 8px!important}
+}
