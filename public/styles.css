@@ -2255,3 +2255,24 @@
   body.admin-dashboard-page .mobile-stat-card em{font-size:11px!important;}
   body.admin-dashboard-page .mobile-stat-icon{width:28px!important;height:28px!important;font-size:15px!important;}
 }
+
+/* v3.19.15 — Mobile Admin Dashboard order polish ONLY
+   Option A: Date Search → Operator Leaderboard → Activity Summary → Performance Overview.
+   Desktop and all other dashboard sections remain unchanged. */
+@media (max-width:760px){
+  body.admin-dashboard-page #panel .date-search-panel{
+    order:1!important;
+  }
+  body.admin-dashboard-page #panel .admin-leaderboard-panel{
+    order:2!important;
+  }
+  body.admin-dashboard-page #panel .mobile-stats-panel{
+    order:3!important;
+    width:100%!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+  body.admin-dashboard-page #panel .performance-overview-panel{
+    order:4!important;
+  }
+}

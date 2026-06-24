@@ -181,3 +181,7 @@ No changes were made to worker dashboards, operator analytics logic, export logi
 - The Choose Operator page now loads all active operators/users dynamically.
 - Newly added Admin users appear on the selector automatically with their saved display names.
 - No other dashboard behavior changed.
+
+## v3.19.15 Mobile Admin Order Polish
+
+Mobile Admin Dashboard only: Activity Summary now appears after Operator Leaderboard and before Performance Overview. Card width and spacing remain aligned with the rest of the mobile dashboard. No desktop or backend changes.
