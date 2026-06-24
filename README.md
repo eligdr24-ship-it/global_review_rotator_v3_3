@@ -175,3 +175,9 @@ No changes were made to worker dashboards, operator analytics logic, export logi
 - Apply Search is full-width, This Week and Today share one row, Last 7 Days remains full-width.
 - Date fields are balanced to match the quick-filter button sizing.
 - Desktop and all other dashboard sections remain unchanged.
+
+
+## v3.19.6 Choose Operator Dynamic Users
+- The Choose Operator page now loads all active operators/users dynamically.
+- Newly added Admin users appear on the selector automatically with their saved display names.
+- No other dashboard behavior changed.
