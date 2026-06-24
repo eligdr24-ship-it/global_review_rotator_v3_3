@@ -2162,3 +2162,96 @@
   body.admin-dashboard-page #panel .date-search-panel .date-toolbar #applyDateSearch{height:36px!important;min-height:36px!important;font-size:11.5px!important;}
   body.admin-dashboard-page #panel .date-search-panel .date-toolbar .btn{height:34px!important;min-height:34px!important;font-size:11px!important;}
 }
+
+
+/* v3.19.14 — Mobile Admin Dashboard spacing + activity summary card ONLY */
+.admin-dashboard-page .mobile-stats-panel{display:none;}
+@media (max-width:760px){
+  body.admin-dashboard-page #panel{
+    gap:12px!important;
+  }
+  body.admin-dashboard-page #panel > .panel,
+  body.admin-dashboard-page #panel > .dashboard-grid,
+  body.admin-dashboard-page #panel > .admin-upload-panel{
+    margin-bottom:0!important;
+  }
+  body.admin-dashboard-page #panel .date-search-panel,
+  body.admin-dashboard-page #panel .admin-leaderboard-panel,
+  body.admin-dashboard-page #panel .performance-overview-panel,
+  body.admin-dashboard-page #panel .mobile-stats-panel,
+  body.admin-dashboard-page #panel #history,
+  body.admin-dashboard-page #panel #weeklyGoals,
+  body.admin-dashboard-page #panel #businessTabs,
+  body.admin-dashboard-page #panel #historicalBusiness,
+  body.admin-dashboard-page #panel #upload,
+  body.admin-dashboard-page #panel #uploadArchivePanel,
+  body.admin-dashboard-page #panel #trash,
+  body.admin-dashboard-page #panel #userManagement{
+    margin-top:0!important;
+    margin-bottom:0!important;
+  }
+  body.admin-dashboard-page #panel .mobile-stats-panel{
+    display:block!important;
+    padding:13px!important;
+    border-radius:18px!important;
+  }
+  body.admin-dashboard-page .mobile-stats-panel h3{
+    font-size:16px!important;
+    line-height:1.15!important;
+    margin:0 0 12px!important;
+    letter-spacing:-.02em!important;
+  }
+  body.admin-dashboard-page .mobile-stats-grid{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+  }
+  body.admin-dashboard-page .mobile-stat-card{
+    min-height:92px!important;
+    padding:14px!important;
+    border:1px solid #DDE5F0!important;
+    border-radius:18px!important;
+    background:rgba(249,251,255,.92)!important;
+    box-shadow:0 10px 24px rgba(15,23,42,.04)!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    gap:5px!important;
+  }
+  body.admin-dashboard-page .mobile-stat-icon{
+    width:30px!important;
+    height:30px!important;
+    display:grid!important;
+    place-items:center!important;
+    border-radius:11px!important;
+    background:#EEF4FF!important;
+    font-size:17px!important;
+    margin-bottom:4px!important;
+  }
+  body.admin-dashboard-page .mobile-stat-card b{
+    font-size:24px!important;
+    line-height:1!important;
+    color:#0F172A!important;
+    font-weight:950!important;
+    letter-spacing:-.03em!important;
+  }
+  body.admin-dashboard-page .mobile-stat-card em{
+    font-style:normal!important;
+    color:#65718A!important;
+    font-size:12px!important;
+    font-weight:850!important;
+    line-height:1.2!important;
+  }
+}
+@media (min-width:761px){
+  body.admin-dashboard-page .mobile-stats-panel{display:none!important;}
+}
+@media (max-width:390px){
+  body.admin-dashboard-page #panel{gap:10px!important;}
+  body.admin-dashboard-page .mobile-stats-grid{gap:8px!important;}
+  body.admin-dashboard-page .mobile-stat-card{min-height:84px!important;padding:12px!important;border-radius:16px!important;}
+  body.admin-dashboard-page .mobile-stat-card b{font-size:21px!important;}
+  body.admin-dashboard-page .mobile-stat-card em{font-size:11px!important;}
+  body.admin-dashboard-page .mobile-stat-icon{width:28px!important;height:28px!important;font-size:15px!important;}
+}
