@@ -2276,3 +2276,38 @@
     order:4!important;
   }
 }
+
+
+/* v3.19.16 Mobile Activity Summary compact */
+@media (max-width:760px){
+ body.admin-dashboard-page .mobile-stat-card{
+   min-height:72px !important;
+   padding:10px 12px !important;
+   gap:2px !important;
+ }
+ body.admin-dashboard-page .mobile-stat-card{
+   display:grid !important;
+   grid-template-columns:28px auto !important;
+   grid-template-rows:auto auto !important;
+   align-items:center !important;
+ }
+ body.admin-dashboard-page .mobile-stat-icon{
+   grid-column:1;
+   grid-row:1;
+   margin:0 !important;
+   width:24px !important;
+   height:24px !important;
+   font-size:14px !important;
+ }
+ body.admin-dashboard-page .mobile-stat-card b{
+   grid-column:2;
+   grid-row:1;
+   font-size:22px !important;
+   line-height:1 !important;
+ }
+ body.admin-dashboard-page .mobile-stat-card em{
+   grid-column:1 / span 2;
+   grid-row:2;
+   font-size:11px !important;
+ }
+}
