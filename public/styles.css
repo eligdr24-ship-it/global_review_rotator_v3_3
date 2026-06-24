@@ -1477,12 +1477,8 @@
     min-height:0!important;
   }
   .admin-dashboard-page .upload-archive-panel .archive-compact-body:before{
-    content:'Click to see the full upload history.';
-    color:var(--mk-muted,#66738a)!important;
-    font-size:12px!important;
-    font-weight:800!important;
-    line-height:1.3!important;
-    min-width:0!important;
+    content:none!important;
+    display:none!important;
   }
   .admin-dashboard-page .upload-archive-panel .archive-compact-body .btn,
   .admin-dashboard-page .admin-upload-panel .mock-card-body .btn,
@@ -1832,3 +1828,7 @@
     grid-column:1 / -1!important;
   }
 }
+
+/* v3.19.8 archive card text fix: prevent duplicate archive description line */
+.admin-dashboard-page .upload-archive-panel.mock-action-card > .archive-compact-body{display:none!important;}
+.admin-dashboard-page .upload-archive-panel.mock-action-card > .mock-card-body{display:flex!important;}

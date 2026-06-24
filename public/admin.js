@@ -396,6 +396,8 @@ initDates();
       archive.classList.add('mock-action-card');
       const list=document.getElementById('uploadArchive');
       if(list){
+        // Remove the original archive body so the description appears only once.
+        archive.querySelectorAll('.archive-compact-body').forEach(el=>el.remove());
         const content=document.createElement('div'); content.className='mock-hidden-content'; content.appendChild(list); archive.appendChild(content);
         const oldBtn=document.getElementById('toggleArchiveBtn'); if(oldBtn) oldBtn.remove();
         const body=document.createElement('div'); body.className='mock-card-body';
