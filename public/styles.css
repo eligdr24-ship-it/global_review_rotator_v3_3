@@ -323,7 +323,13 @@
   .page-top .sub{font-size:12px}
 }
 @media(max-width:420px){
-  .date-toolbar{grid-template-columns:1fr}
+  .date-toolbar{grid-template-columns:1fr 1fr;gap:8px}
+  .date-toolbar label{font-size:11px}
+  .date-toolbar .input{min-height:34px;padding:6px 8px}
+  .date-toolbar #applyDateSearch{grid-column:1/-1}
+  .date-toolbar button[data-range="week"]{grid-column:1}
+  .date-toolbar button[data-range="today"]{grid-column:2}
+  .date-toolbar button[data-range="7"]{grid-column:1/-1}
 }
 
 /* Admin completed-history notes */
