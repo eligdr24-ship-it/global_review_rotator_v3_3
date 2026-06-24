@@ -323,13 +323,7 @@
   .page-top .sub{font-size:12px}
 }
 @media(max-width:420px){
-  .date-toolbar{grid-template-columns:1fr 1fr;gap:8px}
-  .date-toolbar label{font-size:11px}
-  .date-toolbar .input{min-height:34px;padding:6px 8px}
-  .date-toolbar #applyDateSearch{grid-column:1/-1}
-  .date-toolbar button[data-range="week"]{grid-column:1}
-  .date-toolbar button[data-range="today"]{grid-column:2}
-  .date-toolbar button[data-range="7"]{grid-column:1/-1}
+  .date-toolbar{grid-template-columns:1fr}
 }
 
 /* Admin completed-history notes */
@@ -1928,4 +1922,117 @@
     white-space:nowrap!important;
     box-sizing:border-box!important;
   }
+}
+
+
+/* v3.19.12 — FINAL iPhone mobile Admin Date Search box overlap fix ONLY */
+@media (max-width: 760px){
+  body.admin-dashboard-page #panel .date-search-panel{
+    padding:14px 14px 16px!important;
+    margin:0 0 14px!important;
+    overflow:hidden!important;
+    border-radius:22px!important;
+  }
+  body.admin-dashboard-page #panel .date-search-panel .card-head{display:none!important;}
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar{
+    width:100%!important;
+    max-width:100%!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    column-gap:12px!important;
+    row-gap:12px!important;
+    align-items:start!important;
+    justify-content:stretch!important;
+    overflow:hidden!important;
+  }
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar label{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:8px!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+    text-align:center!important;
+    font-size:15px!important;
+    line-height:1.1!important;
+    font-weight:900!important;
+    color:#65718A!important;
+  }
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar label:nth-of-type(1){grid-column:1!important;grid-row:1!important;}
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar label:nth-of-type(2){grid-column:2!important;grid-row:1!important;}
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar input[type="date"],
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar label .input{
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    height:54px!important;
+    min-height:54px!important;
+    max-height:54px!important;
+    padding:0 8px!important;
+    margin:0!important;
+    border-radius:16px!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    text-align:center!important;
+    font-size:16px!important;
+    line-height:54px!important;
+    font-weight:900!important;
+    letter-spacing:-.02em!important;
+    white-space:nowrap!important;
+    -webkit-appearance:none!important;
+    appearance:none!important;
+  }
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar input[type="date"]::-webkit-date-and-time-value{
+    text-align:center!important;
+    min-height:54px!important;
+    line-height:54px!important;
+  }
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar #applyDateSearch{
+    grid-column:1 / -1!important;
+    grid-row:2!important;
+    width:100%!important;
+    height:56px!important;
+    min-height:56px!important;
+    margin:0!important;
+  }
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar button[data-range="week"]{
+    grid-column:1!important;
+    grid-row:3!important;
+  }
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar button[data-range="today"]{
+    grid-column:2!important;
+    grid-row:3!important;
+  }
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar button[data-range="7"]{
+    grid-column:1 / -1!important;
+    grid-row:4!important;
+  }
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar .btn{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    height:52px!important;
+    min-height:52px!important;
+    margin:0!important;
+    padding:0 10px!important;
+    border-radius:16px!important;
+    box-sizing:border-box!important;
+    font-size:16px!important;
+    line-height:1!important;
+    font-weight:950!important;
+    white-space:nowrap!important;
+  }
+}
+@media (max-width: 390px){
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar{column-gap:10px!important;row-gap:10px!important;}
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar input[type="date"],
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar label .input{font-size:14.5px!important;height:50px!important;min-height:50px!important;max-height:50px!important;line-height:50px!important;border-radius:14px!important;}
+  body.admin-dashboard-page #panel .date-search-panel .date-toolbar .btn{height:50px!important;min-height:50px!important;font-size:15px!important;}
 }
