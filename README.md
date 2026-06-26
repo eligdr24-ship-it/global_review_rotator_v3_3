@@ -185,3 +185,12 @@ No changes were made to worker dashboards, operator analytics logic, export logi
 ## v3.19.15 Mobile Admin Order Polish
 
 Mobile Admin Dashboard only: Activity Summary now appears after Operator Leaderboard and before Performance Overview. Card width and spacing remain aligned with the rest of the mobile dashboard. No desktop or backend changes.
+
+
+## v3.19.17 Business Link Cycles
+
+- Business/link tabs now run independent cycles.
+- When one business tab finishes all its links, only that business tab starts a new cycle.
+- The system keeps fair rotation across all business tabs.
+- New cycles avoid immediately repeating the last few links from the previous cycle when possible.
+- Text suggestions also cycle so the system can continue operating without stopping when the text list finishes.

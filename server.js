@@ -136,22 +136,85 @@ function sourceStats(db){
 function historicalSourceStats(db,count=365,from='',to=''){ const days=selectedDays(count,from,to); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>h.status!=='deleted' && days.includes(h.day)&&h.status==='done'); const map={}; for(const h of hist){ const k=h.source||'Links'; map[k] ||= {source:k, completed:0, submittedLinks:0}; map[k].completed++; if(h.submittedLink) map[k].submittedLinks++; } return Object.values(map).sort((a,b)=>b.completed-a.completed); }
 function userBreakdown(db,count=365,from='',to=''){ const days=selectedDays(count,from,to); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>h.status!=='deleted' && days.includes(h.day)&&h.status==='done'); return operatorList(db).map(u=>{ const items=hist.filter(h=>h.userId===u.id); return { id:u.id, name:u.name, color:u.color, totalDone:items.length, doneToday:items.filter(h=>h.day===dayKey()).length, linksDone:new Set(items.map(h=>h.linkIdx)).size, textsDone:new Set(items.map(h=>h.textIdx)).size };  }); }
 function weeklyProgress(db){ const days=currentWeekDays(); const goals=normalizeWeeklyGoals(db.meta?.weeklyGoals||{},db); const hist=(db.state.history||[]).map(h=>historyItem(db,h)).filter(h=>h.status!=='deleted' && days.includes(h.day)&&h.status==='done'); return operatorList(db).map(u=>{ const done=hist.filter(h=>h.userId===u.id).length; const goal=goals[u.id]||0; return { id:u.id, name:u.name, color:u.color, done, goal, percent: goal ? Math.min(100, Math.round(done/goal*100)) : 0 }; }); }
+function recentHistoryIndexes(db, source='', limit=3, type='link'){
+  const out=[];
+  const hist=(db.state.history||[]).slice().reverse();
+  for(const h of hist){
+    if(h.status==='deleted') continue;
+    if(type==='link'){
+      const src=h.source || linkAt(db,h.linkIdx).source || 'Links';
+      if(source && src!==source) continue;
+      if(Number.isInteger(h.linkIdx)) out.push(h.linkIdx);
+    } else {
+      if(Number.isInteger(h.textIdx)) out.push(h.textIdx);
+    }
+    if(out.length>=limit) break;
+  }
+  return out;
+}
+
+function pickRandom(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
 function nextItem(db){
-  const doneSet=new Set(db.state.doneLinks), usedSet=new Set(db.state.usedTexts);
-  const linkCandidates=db.data.links.map((_,i)=>i).filter(i=>!doneSet.has(i));
-  const textCandidates=db.data.texts.map((_,i)=>i).filter(i=>!usedSet.has(i));
   if(!db.data.links.length || !db.data.texts.length) return null;
-  if(!linkCandidates.length || !textCandidates.length) return {completed:true};
-  const availableSources=[...new Set(linkCandidates.map(i=>linkAt(db,i).source||'Links'))].sort();
-  const doneBySource=Object.fromEntries(availableSources.map(s=>[s,0]));
-  for(const i of db.state.doneLinks){ const s=linkAt(db,i).source||'Links'; if(s in doneBySource) doneBySource[s]++; }
-  const minDone=Math.min(...availableSources.map(s=>doneBySource[s]));
-  const fairSources=availableSources.filter(s=>doneBySource[s]===minDone);
-  const selectedSource=fairSources[(db.state.sourcePtr||0)%fairSources.length];
-  db.state.sourcePtr=(db.state.sourcePtr||0)+1;
-  const sourceCandidates=linkCandidates.filter(i=>(linkAt(db,i).source||'Links')===selectedSource);
-  const linkIdx=sourceCandidates[Math.floor(Math.random()*sourceCandidates.length)];
-  const textIdx=textCandidates[Math.floor(Math.random()*textCandidates.length)];
+
+  const sources=[...new Set(db.data.links.map((_,i)=>linkAt(db,i).source||'Links'))].sort();
+  if(!sources.length) return null;
+
+  // Text suggestions now cycle too, so the system does not stop when the text list finishes.
+  let usedSet=new Set(db.state.usedTexts);
+  let textCandidates=db.data.texts.map((_,i)=>i).filter(i=>!usedSet.has(i));
+  if(!textCandidates.length){
+    const recentTexts=new Set(recentHistoryIndexes(db,'',3,'text'));
+    db.state.usedTexts=[];
+    textCandidates=db.data.texts.map((_,i)=>i);
+    if(textCandidates.length>3){
+      const filtered=textCandidates.filter(i=>!recentTexts.has(i));
+      if(filtered.length) textCandidates=filtered;
+    }
+  }
+
+  // Fair business distribution: rotate between all active business tabs.
+  // Each business tab has its own independent link cycle.
+  let selectedSource='';
+  let sourceCandidates=[];
+  let checked=0;
+  while(checked<sources.length){
+    selectedSource=sources[(db.state.sourcePtr||0)%sources.length];
+    db.state.sourcePtr=(db.state.sourcePtr||0)+1;
+    checked++;
+
+    const sourceIdxs=db.data.links.map((_,i)=>i).filter(i=>(linkAt(db,i).source||'Links')===selectedSource);
+    if(!sourceIdxs.length) continue;
+
+    let doneSet=new Set(db.state.doneLinks);
+    sourceCandidates=sourceIdxs.filter(i=>!doneSet.has(i));
+
+    // If this business finished its full link cycle, reset only this business.
+    // Keep the rest of the businesses in their current cycles.
+    if(!sourceCandidates.length){
+      const recentLinks=new Set(recentHistoryIndexes(db,selectedSource,3,'link'));
+      const sourceSet=new Set(sourceIdxs);
+      db.state.doneLinks=(db.state.doneLinks||[]).filter(i=>!sourceSet.has(i));
+      sourceCandidates=sourceIdxs.slice();
+
+      // History-aware shuffle behavior: avoid immediately starting the new
+      // cycle with the same links that ended the previous cycle when possible.
+      if(sourceCandidates.length>3){
+        const filtered=sourceCandidates.filter(i=>!recentLinks.has(i));
+        if(filtered.length) sourceCandidates=filtered;
+      }
+    }
+
+    if(sourceCandidates.length) break;
+  }
+
+  if(!sourceCandidates.length || !textCandidates.length) return {completed:true};
+
+  const linkIdx=pickRandom(sourceCandidates);
+  const textIdx=pickRandom(textCandidates);
   const link=linkAt(db,linkIdx);
   return {linkIdx,textIdx,source:link.source,link:link.url,text:db.data.texts[textIdx]};
 }
